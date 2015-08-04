@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+        <link rel="stylesheet" href="css/font-awesome/jqm-icon-pack-fa.css" />
+        <link rel="stylesheet" type="text/css" href="css/index.css">      
+        <link rel="stylesheet" href="js/nv.d3/nv.d3.min.css" />
+        
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/d3.min.js"></script>
+        <script type="text/javascript" src="js/nv.d3/nv.d3.min.js"></script>
+        <script type="text/javascript" src="js/moment.min.js"></script>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript" src="js/parser.js"></script>
+        <script type="text/javascript" src="js/report.js"></script>
+        <script type="text/javascript" src="js/database.js"></script>        
+        <script type="text/javascript" src="js/app.js"></script>
+        
+        <title>Name?</title>
+    </head>
+    <body>
+        
+        <!-- home page -->
+        <div id="home" data-role="page">
+            <h1>Prima app</h1>
+            <div id="deviceready" class="blink"> 
+                <input id="speakGreen" type="button" value="Add income">
+                <input id="speakRed" type="button" value="Add expense">
+                
+                <div id="spoken">...</div>
+                
+                <a href="#report">See report</a>
+                
+            </div>
+        </div>
+        <!-- end home page -->
+        
+        
+        <!-- report page -->
+        <div id="report" data-role="page">
+            
+            This is the report page <a href="#home">Back to home</a>
+            
+            <div id="plot-container">
+                <svg id="reportSvg"></svg>
+            </div>
+            
+            <div id="dashboard-controls">
+                <fieldset data-role="controlgroup" id="type-control">
+                    <legend>Report type</legend>
+                    <input type="radio" name="radio-type" id="radio-type-list" value="list" checked="checked" />
+                    <label for="radio-type-list">List</label>
+
+                    <input type="radio" name="radio-type" id="radio-type-pie" value="pie"  />
+                    <label for="radio-type-pie" class="ui-icon-cloud">Pie</label>
+
+                    <input type="radio" name="radio-type" id="radio-type-line" value="line"  />
+                    <label for="radio-type-line" class="ui-icon-clock-o">Line</label>
+
+                    <input type="radio" name="radio-type" id="radio-type-map" value="map" />
+                    <label for="radio-type-map" class="ui-icon-map-marker">Map</label>
+                </fieldset>
+
+                <fieldset data-role="controlgroup" id="span-control">
+                    <legend>Time span</legend>
+                    <input type="radio" name="radio-span" id="radio-span-day" value="day" checked="checked" />
+                    <label for="radio-span-day">Day</label>
+
+                    <input type="radio" name="radio-span" id="radio-span-week" value="week"  />
+                    <label for="radio-span-week">Week</label>
+
+                    <input type="radio" name="radio-span" id="radio-span-month" value="month"  />
+                    <label for="radio-span-month">Month</label>
+
+                    <input type="radio" name="radio-span" id="radio-span-year" value="year"  />
+                    <label for="radio-span-year">Year</label>
+                </fieldset>
+
+                <fieldset data-role="controlgroup" id="valence-control">
+                    <legend>Valence</legend>
+                    <input type="radio" name="radio-valence" id="radio-valence-expense" value="expense" checked="checked" />
+                    <label for="radio-valence-expense">Expense</label>
+
+                    <input type="radio" name="radio-valence" id="radio-valence-income" value="income"  />
+                    <label for="radio-valence-income">Income</label>
+
+                    <input type="radio" name="radio-valence" id="radio-valence-balance" value="balance"  />
+                    <label for="radio-valence-balance">Balance</label>
+                </fieldset>
+
+                <label for="search-control-group">Filter</label>     
+                <input type="text" id="search-control-group" data-wrapper-class="controlgroup-textinput ui-btn">
+            </div>
+        </div>
+        <!-- end report page -->
+        
+        <script>
+            
+            var deviceReadyDeferred = $.Deferred();
+            var jqmReadyDeferred = $.Deferred();
+            
+            if ( !!window.cordova ) {
+                console.log('we are on device');
+                $.when(deviceReadyDeferred, jqmReadyDeferred).done( appInit );
+            } else {
+                console.log('we are on desktop');
+                var SpeechRecognition = function(){};
+                $.when(jqmReadyDeferred).done( appInit );
+            }
+            
+            $(document).ready( function () {
+                console.log('jQuery is ready');
+                jqmReadyDeferred.resolve();
+            });
+            
+            document.addEventListener('deviceReady', onDeviceReady, false);
+            function onDeviceReady() {
+                console.log('cordova is ready');
+                deviceReadyDeferred.resolve();
+            }	
+            
+            function appInit() {
+                
+                console.log('appInit fired', db);
+                
+                // state var, are we dealing with income or expense?
+                var recordPolarity = -1.0;
+
+                var recognition = new SpeechRecognition();
+                recognition.lang = 'it';
+                recognition.onresult = function(event) {
+                    console.log('event', event);
+                    if (event.results.length > 0) {
+                        var voiceInput = event.results[0][0].transcript;
+                        
+                        // parse command
+                        var obj = parseSentence(voiceInput);
+                        
+                        // give visual feedback
+                        console.log(obj);
+                        $('#spoken').text(voiceInput);
+                        
+                        if( obj !== {} ) {
+                            // update polarity
+                            obj.amount *= recordPolarity;
+
+                            // insert into db
+                            insertRecord(obj);
+                        }
+                    }
+                };
+                
+                initReport();
+
+                $('#speakGreen').on('click touchstart', function(){
+                    recordPolarity = 1.0;
+                    recognition.start();                            
+                });
+
+                $('#speakRed').on('click touchstart', function(){
+                    recordPolarity = -1.0;
+                    recognition.start();                            
+                });
+                
+            }
+        </script>
+        
+    </body>
+</html>
+
+
