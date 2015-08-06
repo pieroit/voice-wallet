@@ -48,10 +48,18 @@
             This is the report page <a href="#home">Back to home</a>
             
             <div id="plot-container">
-                <svg id="reportSvg"></svg>
+                <div id="report-div"></div>
+                <svg id="report-svg"></svg>
             </div>
             
             <div id="dashboard-controls">
+                
+                <div id="time-span-buttons">
+                    <a id="time-span-button-start" data-role="button" data-inline="true" data-time-span-start="55555555">o--</a>
+                    <span id="report-title">Plot title</span>
+                    <a id="time-span-button-end" data-role="button" data-inline="true" data-time-span-end="66666666">--o</a>
+                </div>
+                
                 <fieldset data-role="controlgroup" id="type-control">
                     <legend>Report type</legend>
                     <input type="radio" name="radio-type" id="radio-type-list" value="list" checked="checked" />
@@ -148,7 +156,7 @@
                         
                         if( obj !== {} ) {
                             // update polarity
-                            obj.amount *= recordPolarity;
+                            obj.import *= recordPolarity;
 
                             // insert into db
                             insertRecord(obj);

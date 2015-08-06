@@ -1,6 +1,7 @@
 // TODO: this file must become a class
 var svg;
 
+
 function initReport(){
     
     console.log('init report');
@@ -20,104 +21,113 @@ function initReport(){
     populateReport(reportQ);
     
     // update report at each control panel event
-    $('#dashboard-controls').on('click touchstart', function(){
+    function updateReport() {
+        
+        // delete actual report contents and put on a loading gif
+        $('#report-div').empty();
+        svg.selectAll('*').remove();
+        
+        // extract report query
         var reportQ = getReportQueryFromControlPanel();
+        
+        // update report
         populateReport(reportQ);
-    });   
+    }
+    $('#dashboard-controls').on('change', updateReport );
+    $('#time-span-buttons').on('click touchstart', updateReport );
 }
 
 function getLatestReportQuery() {
     
     // TODO: there should be a db setting for this
+    
+    
+    // if not present in db, return default (or just put default in the DB)
     return {
-        'type': 'line',
+        'type': 'pie',
         'start': 111134124,
         'end': 114343453,
         'valence': 'expense'
     };  
 }
 
+// extract query from the panel and save it into db before return it
 function getReportQueryFromControlPanel() {
-    // TODO: extract query from the panel and save it into db
-    return getLatestReportQuery();
-}
-
-function populateReport(reportQ) {
-    var data = getData(reportQ);
     
-    // update report now
-    updateReport(reportQ.type, data);
+    var timeSpanStart = $('#time-span-button-start').data('time-span-start');
+    var timeSpanEnd = $('#time-span-button-end').data('time-span-end');
+    
+    var reportQuery = {
+        'type': $("[name='radio-type']:checked").val(),
+        'start': timeSpanStart,
+        'end': timeSpanEnd,
+        'valence': $("[name='radio-valence']:checked").val()
+    };
+    
+    console.log('report Query', reportQuery);
+    
+    // TODO: return the scraped query
+    return reportQuery;
+    //return getLatestReportQuery();
 }
 
 // Based on the reportQuery, retrieve data
-function getData(reportQuery){
+function populateReport(reportQuery){
     
     // TODO: resolve data thick issue:
     // 3 - keep a copy of original queried data
     
-    console.log('    getting report data from db', db);
+    console.log('    getting report data from db');
     
-    return [
-        {
-            time: moment('2015-10-20 10:30').unix()*1000,
-            import: -300,
-            category: 'spesa'
-        },
-        {
-            time: moment('2015-10-21 10:30').unix()*1000,
-            import: -200,
-            category: 'spesa'
-        },
-        {
-            time: moment('2015-10-21 10:30').unix()*1000,
-            import: -20,
-            category: 'spesa'
-        },
-        {
-            time: moment('2015-10-24 10:30').unix()*1000,
-            import: -130,
-            category: 'spesa'
-        },
-        {
-            time: moment('2015-10-21 10:30').unix()*1000,
-            import: -3,
-            category: 'trasporti'
-        },
-        {
-            time: moment('2015-10-24 10:30').unix()*1000,
-            import: -25,
-            category: 'trasporti'
-        },
-        {
-            time: moment('2015-10-23 10:30').unix()*1000,
-            import: -30,
-            category: 'bollette'
-        },
-        {
-            time: moment('2015-10-23 10:30').unix()*1000,
-            import: 100,
-            category: 'paghetta'
-        },
-        {
-            time: moment('2015-10-24 10:30').unix()*1000,
-            import: 1500,
-            category: 'stipendio'
+    getRecords( reportQuery, function(tx, results){
+        
+        var data = [];
+
+        for(var i=0; i<results.rows.length; i++){
+            data.push( results.rows.item(i) );
         }
-    ];
+        
+        // update report with queried data
+        updateReport(reportQuery.type, data);
+    } );
+
 }
 
 
 // each event in the control panel should fire a redraw
 function updateReport(type, data) {
-    if(type == 'list'){
-        
-    } else if(type == 'pie') {
+    if( type === 'pie' ) {
         updateReportPie(data);
-    } else if(type == 'line') {
+    } else if( type === 'line' ) {
         updateReportLine(data);
-    } else if(type == 'map') {
-    
+    } else if( type === 'list' ) {
+        updateReportList(data);
+    } else if( type === 'map' ) {
+        updateReportMap(data);
     }
+}
+
+function updateReportList(data) {
+    
+    d3.select('#report-div')
+        .selectAll('div')
+        .data(data)
+        .enter()
+        .insert('div', 'svg')   // append before svg
+        .text( function(d, i){
+            var text = '' + i;
+            
+            for(var prop in d) {
+                var propText = d[prop];
+                if( prop === 'time' ) {    // time property
+                    propText = moment.unix(propText).format('YYYY-MM-DD HH:mm');
+                }
+                
+                text += ' | ' + propText;
+            }
+            return text;
+        });
+    
 }
 
 function updateReportPie(data) {
@@ -138,7 +148,7 @@ function updateReportPie(data) {
         var chart = nv.models.pieChart()
           .x(function(d) { return d.key })
           .y(function(d) { return Math.abs(d.categorySum) })
-          .showLabels(true);
+          .showLabels(false);
 
         svg.datum(data)
             .transition().duration(350)

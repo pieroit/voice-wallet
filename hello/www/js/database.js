@@ -4,6 +4,60 @@ var db = window.openDatabase("VocalExpenses", "1.0", "VocalExpenses", 10000000);
 db.transaction(createDB, errorCB);
 db.transaction(populateDB, errorCB);
 
+var dumpRecords = [
+    {
+        time: moment('2014-12-30 10:30').unix(),
+        import: -300,
+        category: 'spesa'
+    },
+    {
+        time: moment('2015-01-01 10:30').unix(),
+        import: -200,
+        category: 'spesa'
+    },
+    {
+        time: moment('2015-01-01 18:30').unix(),
+        import: -20,
+        category: 'spesa'
+    },
+    {
+        time: moment('2015-01-05 10:30').unix(),
+        import: -130,
+        category: 'spesa'
+    },
+    {
+        time: moment('2015-01-07 10:30').unix(),
+        import: -3,
+        category: 'trasporti'
+    },
+    {
+        time: moment('2015-01-07 10:30').unix(),
+        import: -25,
+        category: 'trasporti'
+    },
+    {
+        time: moment('2015-01-23 10:30').unix(),
+        import: -30,
+        category: 'bollette'
+    },
+    {
+        time: moment('2015-01-23 10:30').unix(),
+        import: 100,
+        category: 'paghetta'
+    },
+    {
+        time: moment('2015-02-24 10:30').unix(),
+        import: 1500,
+        category: 'stipendio'
+    }
+];
+
+for(var i in dumpRecords){
+    insertRecord( dumpRecords[i] );
+}
+
+db.transaction(seeDB, errorCB);
+
 // Drop all tables
 function cleanDB(tx){
     tx.executeSql('DROP TABLE IF EXISTS transactions');
@@ -30,9 +84,6 @@ function populateDB(tx){
     tx.executeSql('INSERT INTO transactions (id, time, import, currency, category, description, latitude, longitude) VALUES ("342414", 1436868863237, 12.10, "USD", "trasporti", "benza GPL", 34.6456, 66.1123)');
     tx.executeSql('INSERT INTO settings (name, value) VALUES ("language", "it")');
     tx.executeSql('INSERT INTO settings (name, value) VALUES ("share_data", "yes")');
- 
-    // Verify demo data
-    seeDB(tx);
 }
 
 function seeDB(tx){
@@ -72,14 +123,30 @@ function errorCB(err) {
     }
 }
 
+function validateRecord( record ) {
+    if( !record.currency )
+        record.currency = 'EUR';
+    if( !record.description )
+        record.description = ' ';
+    if( !record.latitude )
+        record.latitude = 0.0;
+    if( !record.longitude )
+        record.longitude = 0.0; 
+    
+    return record;
+}
+
 // Insert transaction into db. TODO: recordObj must be sanitized
 function insertRecord( recordObj ) {
+    
+    recordObj = validateRecord( recordObj );
+    
     db.transaction( function(tx) {
-        console.log('inserting', recordObj, 'into DB');
+        //console.log('inserting', recordObj, 'into DB');
         var query = 'INSERT INTO transactions (id, time, import, currency, category, description, latitude, longitude) VALUES (';
         query += (new Date()).getTime().toString();            // TODO: find a better id
         query += ', ' + (new Date()).getTime().toString();     // time
-        query += ', ' + recordObj.amount.toString();
+        query += ', ' + recordObj.import.toString();
         query += ', "' + recordObj.currency + '"';
         query += ', "' + recordObj.category + '"';      
         query += ', "' + recordObj.description + '"';
@@ -87,10 +154,8 @@ function insertRecord( recordObj ) {
         query += ', ' + recordObj.longitude;
         query += ')';
         
-        console.log(query);
+        //console.log(query);
         tx.executeSql(query, [], querySuccess, errorCB);
-        
-        seeDB(tx);
     }, errorCB);  
 }
 
@@ -98,6 +163,6 @@ function getRecords( queryObject, callback ) {
     db.transaction( function(tx) {
         console.log('    getting data to populate report', queryObject);
         var query = 'SELECT * FROM transactions';
-        tx.exexuteSql(query, [], callback, errorCB);
+        tx.executeSql(query, [], callback, errorCB);
     });
 }

@@ -28,7 +28,7 @@
         
         //convert command to regex
         var phrases = [
-            '€*amount *content (' + i0n('categoria') + ' *cat)',
+            '€*import *content (' + i0n('categoria') + ' *cat)',
             i0n('si'),
             i0n('no')];
         for(var i=0; i<phrases.length; i++){
@@ -47,7 +47,7 @@
             if(result){
                 result = result.splice(1);
                 if(result.length >= 3){
-                    obj.amount = +result[0];
+                    obj.import = +result[0];
                     obj.currency = 'EUR';
                     obj.description = result[1].trim();
                     obj.category = result[2];
