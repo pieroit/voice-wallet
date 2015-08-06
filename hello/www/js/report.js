@@ -1,6 +1,6 @@
 // TODO: this file must become a class
 var svg;
-
+var map;
 
 function initReport(){
     
@@ -16,14 +16,11 @@ function initReport(){
     console.log('    retieving last used reportQuery');
     var reportQ = getLatestReportQuery();
     
-    // Now we launch a method that will retrieve data based on the query
-    // When the data arrive we will build the actual chart
-    populateReport(reportQ);
-    
     // update report at each control panel event
     function updateReport() {
         
         // delete actual report contents and put on a loading gif
+        $('#map-div').hide();
         $('#report-div').empty();
         svg.selectAll('*').remove();
         
@@ -33,8 +30,11 @@ function initReport(){
         // update report
         populateReport(reportQ);
     }
+    
     $('#dashboard-controls').on('change', updateReport );
     $('#time-span-buttons').on('click touchstart', updateReport );
+    
+    updateReport();
 }
 
 function getLatestReportQuery() {
@@ -156,6 +156,30 @@ function updateReportPie(data) {
 
         return chart;
     });
+}
+
+function updateReportMap(data) {
+    
+    $('#map-div').show();
+    
+    // TODO: get current location
+    if( !map ) {
+        map = L.map('map-div').setView([51, 0], 14);
+    }
+    
+    L.tileLayer( 'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+        {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
+            maxZoom: 18
+        }
+    ).addTo(map);
+    
+    for( var i=0; i<data.length; i++ ){
+        console.log(data[i]);
+        var lat = data[i].latitude;
+        var lon = data[i].longitude;
+        var marker = L.marker([lat, lon]).addTo(map);
+    }
 }
     
 function updateReportLine(data) {
