@@ -9,6 +9,7 @@ fieldset {
 
 #plot-container {
     height: 50%;
+    overflow-y: scroll;
 }
 
 #map-div {
