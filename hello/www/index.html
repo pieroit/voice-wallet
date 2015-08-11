@@ -22,7 +22,8 @@
         <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
         <script type="text/javascript" src="js/parser.js"></script>
         <script type="text/javascript" src="js/report.js"></script>
-        <script type="text/javascript" src="js/database.js"></script>        
+        <script type="text/javascript" src="js/database.js"></script>
+        <script type="text/javascript" src="js/form.js"></script>
         <script type="text/javascript" src="js/app.js"></script>
         
         <title>Name?</title>
@@ -31,15 +32,28 @@
         
         <!-- home page -->
         <div id="home" data-role="page">
+           
+            <div data-role="header" data-position="fixed">
+                <img id="logo" src="img/logo.png">
+                <div id="quote">
+                    Don't let making a living prevent you from making a life. - John Wooden
+                </div>
+            </div>
+            
             <h1>Prima app</h1>
-            <div id="deviceready" class="blink"> 
+            <div> 
                 <input id="speakGreen" type="button" value="Add income">
-                <input id="speakRed" type="button" value="Add expense">
-                
-                <div id="spoken">...</div>
-                
-                <a href="#report">See report</a>
-                
+                <input id="speakRed" type="button" value="Add expense">         
+            </div>
+            
+            <div data-role="footer" data-position="fixed">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#report">Report</a></li>
+                        <li><a href="#options">Options</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <!-- end home page -->
@@ -47,8 +61,6 @@
         
         <!-- report page -->
         <div id="report" data-role="page">
-            
-            This is the report page <a href="#home">Back to home</a>
             
             <div id="plot-container">
                 <div id="report-div"></div>
@@ -109,8 +121,77 @@
                 <label for="search-control-group">Filter</label>     
                 <input type="text" id="search-control-group" data-wrapper-class="controlgroup-textinput ui-btn">
             </div>
+            
+            <div data-role="footer" data-position="fixed">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#report">Report</a></li>
+                        <li><a href="#options">Options</a></li>
+                    </ul>
+                </div>
+            </div>
+            
         </div>
         <!-- end report page -->
+        
+        <!-- form page -->
+        <div id="form" data-role="page">
+        
+            <div>
+                <div id="spoken">...</div>
+                
+                <span class="form-inline">
+                    <input id="form-import" type="number" placeholder="import" >
+                </span>
+                <!--<span class="form-inline">-->
+                    <!--<select id="form-currency" data-mini="true" >
+                        <option value="EUR" selected>&#8364;</option>
+                        <option value="DOL">$</option>
+                        <option value="YEN">Y</option>
+                    </select>-->
+                    <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+                        <input type="radio" name="form-currency" id="radio-choice-h-2a" value="EUR" checked="checked">
+                        <label for="radio-choice-h-2a">&#128;</label>
+                        <input type="radio" name="form-currency" id="radio-choice-h-2b" value="USD">
+                        <label for="radio-choice-h-2b">$</label>
+                    </fieldset>
+                <!--</span>-->
+                <textarea id="form-description" placeholder="description" ></textarea>
+                <input id="form-category" type="text" name="text-basic" placeholder="category" >
+                <span class="form-inline">
+                    <input id="form-data" type="date" name="text-basic">
+                </span>
+                <span class="form-inline">
+                    <input id="form-data" type="time" name="text-basic">
+                </span>
+                <div id="form-map"></div>
+                <div>
+                    <a id="form-button-ok" data-role="button" data-inline="true">Save</a>
+                    <a id="form-button-cancel" data-role="button" data-inline="true">Cancel</a>
+                    <a id="form-button-delete" data-role="button" data-inline="true">Delete</a>
+                </div>
+                
+            </div>
+        </div>
+        <!-- end form page -->
+        
+        <!-- options page -->
+        <div id="options" data-role="page">
+            <h1>Opzioni tacci tua</h1>
+            
+            
+            <div data-role="footer" data-position="fixed">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#report">Report</a></li>
+                        <li><a href="#options">Options</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- end options page -->
         
         <script>
             
@@ -124,7 +205,10 @@
                 $.when(deviceReadyDeferred, jqmReadyDeferred).done( appInit );
             } else {
                 console.log('we are on desktop');
-                //var SpeechRecognition = function(){};
+                // Building a fake speechRecognition obj
+                var SpeechRecognition = function(){
+                    this.start = function(){};
+                };
                 $.when(jqmReadyDeferred).done( appInit );
             }
             
@@ -164,8 +248,7 @@
                             // update polarity
                             obj.import *= recordPolarity;
 
-                            // insert into db
-                            insertRecord(obj);
+                            
                         }
                     }
                 };
@@ -173,12 +256,15 @@
 
                 $('#speakGreen').on('click', function(){
                     recordPolarity = 1.0;
-                    console.log(recognition);
+                    initForm();
+                    $.mobile.navigate('#form');
                     recognition.start();                            
                 });
 
                 $('#speakRed').on('click', function(){
                     recordPolarity = -1.0;
+                    initForm();
+                    $.mobile.navigate('#form');
                     recognition.start();                            
                 });
                 

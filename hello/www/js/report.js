@@ -40,6 +40,7 @@ function initReport(){
 function getLatestReportQuery() {
     
     // TODO: there should be a db setting for this
+    // TODO: check that this is executed at report init
     
     
     // if not present in db, return default (or just put default in the DB)
@@ -66,9 +67,7 @@ function getReportQueryFromControlPanel() {
     
     console.log('report Query', reportQuery);
     
-    // TODO: return the scraped query
     return reportQuery;
-    //return getLatestReportQuery();
 }
 
 // Based on the reportQuery, retrieve data
@@ -165,14 +164,14 @@ function updateReportMap(data) {
     // TODO: get current location
     if( !map ) {
         map = L.map('map-div').setView([51, 0], 14);
-    }
     
-    L.tileLayer( 'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
-        {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
-            maxZoom: 18
-        }
-    ).addTo(map);
+        L.tileLayer( 'http://otile2.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+            {
+                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>',
+                maxZoom: 18
+            }
+        ).addTo(map);
+    }
     
     for( var i=0; i<data.length; i++ ){
         console.log(data[i]);
