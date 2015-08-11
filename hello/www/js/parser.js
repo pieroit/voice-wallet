@@ -15,11 +15,6 @@
         return new RegExp('^' + command + '$', 'i');
     };
     
-    var i0n = function(word){
-       //TODO: insert translation here
-       return word;
-    };
-    
     var parseSentence = function(s){
         var obj = {};
         var commandsList = [];

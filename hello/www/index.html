@@ -20,6 +20,7 @@
         <script type="text/javascript" src="js/moment.min.js"></script>
         <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript" src="js/i0n.js"></script>
         <script type="text/javascript" src="js/parser.js"></script>
         <script type="text/javascript" src="js/report.js"></script>
         <script type="text/javascript" src="js/database.js"></script>
@@ -63,7 +64,7 @@
         <div id="report" data-role="page">
             
             <div id="plot-container">
-                <div id="report-div"></div>
+                <table id="report-div"></table>
                 <div id="map-div"></div>
                 <svg id="report-svg"></svg>
             </div>
@@ -142,6 +143,7 @@
                 <div id="spoken">...</div>
                 
                 <span class="form-inline">
+                    <input id="form-import-polarity" type="hidden" value="1" >
                     <input id="form-import" type="number" placeholder="import" >
                 </span>
                 <!--<span class="form-inline">-->
@@ -205,10 +207,8 @@
                 $.when(deviceReadyDeferred, jqmReadyDeferred).done( appInit );
             } else {
                 console.log('we are on desktop');
-                // Building a fake speechRecognition obj
-                var SpeechRecognition = function(){
-                    this.start = function(){};
-                };
+                // TODO: make HTML5 speech recog work
+                var SpeechRecognition = webkitSpeechRecognition;
                 $.when(jqmReadyDeferred).done( appInit );
             }
             
@@ -226,12 +226,9 @@
             function appInit() {
                 
                 console.log('appInit fired', db);
-                
-                // state var, are we dealing with income or expense?
-                var recordPolarity = -1.0;
 
                 recognition = new SpeechRecognition();
-                recognition.lang = 'it';
+                recognition.lang = 'it-IT';
                 recognition.onresult = function(event) {
                     console.log('event', event);
                     if (event.results.length > 0) {
@@ -244,26 +241,20 @@
                         console.log(obj);
                         $('#spoken').text(voiceInput);
                         
-                        if( obj !== {} ) {
-                            // update polarity
-                            obj.import *= recordPolarity;
-
-                            
-                        }
+                        // update form
+                        precompileForm(obj);                        
                     }
                 };
                 console.log('recognition', recognition);
 
                 $('#speakGreen').on('click', function(){
-                    recordPolarity = 1.0;
-                    initForm();
+                    initForm(1);
                     $.mobile.navigate('#form');
                     recognition.start();                            
                 });
 
                 $('#speakRed').on('click', function(){
-                    recordPolarity = -1.0;
-                    initForm();
+                    initForm(-1);
                     $.mobile.navigate('#form');
                     recognition.start();                            
                 });

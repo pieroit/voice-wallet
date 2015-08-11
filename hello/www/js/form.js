@@ -1,7 +1,7 @@
 var formMap;
 
 jQuery(document).ready( function($){
-    initForm();
+    initForm(1);
     
     // Submit events
     $('#form-button-ok').on('click', saveFormData);
@@ -11,7 +11,10 @@ jQuery(document).ready( function($){
 });
 
 // This function must be able to create and modify any record
-function initForm(){
+function initForm(recordPolarity){
+    
+    // Set record polarity in the form
+    $('#form-import-polarity').val(recordPolarity);
     
     // TODO: get current location or latest location
     if(!formMap) {
@@ -29,16 +32,33 @@ function initForm(){
     formMap._onResize();
 }
 
+function precompileForm(obj) {
+
+    // update form
+    if( obj !== {} ) {
+        $("#form-import").val( obj.import );
+        $("[name='form-currency']:checked").val();  // not easy :|
+        $('#form-description').val( obj.description );
+        $('#form-category').val( obj.category );
+        //time: 0;  // TODO
+        //latitude: 0;  // TODO
+        //longitude : 0;    // TODO
+    }
+}
+
 function saveFormData() {
+    
     // TODO: scrape obj from the form
+    var formImport = parseFloat( $('#form-import').val() );
+    formImport *= parseFloat( $('#form-import-polarity').val() );
     var obj = {
-        import: $("#form-import").val(),
+        import: formImport,
         currency: $("[name='form-currency']:checked").val(),
         description: $('#form-description').val(),
         category: $('#form-category').val(),
-        time: 0,
-        latitude: 0,
-        longitude : 0
+        time: 0,  // TODO
+        latitude: 0, // TODO
+        longitude : 0 // TODO
     };
     
     console.log(obj);

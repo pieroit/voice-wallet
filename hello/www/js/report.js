@@ -109,21 +109,29 @@ function updateReport(type, data) {
 function updateReportList(data) {
     
     d3.select('#report-div')
-        .selectAll('div')
+        .selectAll('tr')
         .data(data)
         .enter()
-        .insert('div', 'svg')   // append before svg
-        .text( function(d, i){
-            var text = '' + i;
+        .insert('tr', 'svg')   // append before svg
+        .style('color', function(d){
+            if(d.import > 0)
+                return 'green';
+            return 'red';
+        })
+        .html( function(d, i){
+            var text = '';
             
             for(var prop in d) {
-                var propText = d[prop];
-                if( prop === 'time' ) {    // time property
-                    propText = moment.unix(propText).format('YYYY-MM-DD HH:mm');
+                if( prop !== 'id' && prop !== 'longitude' && prop !== 'latitude' ){
+                    var propText = d[prop];
+                    if( prop === 'time' ) {    // time format
+                        propText = moment.unix(propText).format('YYYY-MM-DD HH:mm');
+                    }
+
+                    text += '<td>' + propText + '</td>';
                 }
-                
-                text += ' | ' + propText;
             }
+            
             return text;
         });
     

@@ -8,47 +8,56 @@ var dumpRecords = [
     {
         time: moment('2014-12-30 10:30').unix(),
         import: -300,
-        category: 'spesa'
+        category: 'spesa',
+        description: '...'
     },
     {
         time: moment('2015-01-01 10:30').unix(),
         import: -200,
-        category: 'spesa'
+        category: 'spesa',
+        description: '...'
     },
     {
         time: moment('2015-01-01 18:30').unix(),
         import: -20,
-        category: 'spesa'
+        category: 'spesa',
+        description: '...'
     },
     {
         time: moment('2015-01-05 10:30').unix(),
         import: -130,
-        category: 'spesa'
+        category: 'spesa',
+        description: '...'
     },
     {
         time: moment('2015-01-07 10:30').unix(),
         import: -3,
-        category: 'trasporti'
+        category: 'trasporti',
+        description: '...'
     },
     {
         time: moment('2015-01-07 10:30').unix(),
         import: -25,
-        category: 'trasporti'
+        category: 'trasporti',
+        description: '...'
     },
     {
         time: moment('2015-01-23 10:30').unix(),
         import: -30,
-        category: 'bollette'
+        category: 'bollette',
+        description: '...'
     },
     {
         time: moment('2015-01-23 10:30').unix(),
         import: 100,
-        category: 'paghetta'
+        category: 'paghetta',
+        description: 'posso comprare sipiderman!'
     },
     {
         time: moment('2015-02-24 10:30').unix(),
         import: 1500,
-        category: 'stipendio'
+        category: 'stipendio',
+        description: '...'
     }
 ];
 
@@ -84,6 +93,9 @@ function populateDB(tx){
     tx.executeSql('INSERT INTO transactions (id, time, import, currency, category, description, latitude, longitude) VALUES ("342414", 1436868863, 12.10, "USD", "trasporti", "benza GPL", 34.6456, 66.1123)');*/
     tx.executeSql('INSERT INTO settings (name, value) VALUES ("language", "it")');
     tx.executeSql('INSERT INTO settings (name, value) VALUES ("share_data", "yes")');
+    
+    // TODO: add this feature
+    tx.executeSql('INSERT INTO settings (name, value) VALUES ("last_report_query", "stringifiedJSON")');
 }
 
 function seeDB(tx){
