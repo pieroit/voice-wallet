@@ -6,48 +6,30 @@ function initReport(){
     
     console.log('init report');
 
-    svg = d3.select('svg')
-        .attr('width', '100%')
-        .attr('height', '100%');
-
-    //var width = parseInt( svg.style('width'), 10 );
-    //var height = parseInt( svg.style('height'), 10 );
-    
-    console.log('    retieving last used reportQuery');
-    var reportQ = getLatestReportQuery();
-    
-    // update report at each control panel event
-    function updateReport() {
-        
-        // delete actual report contents and put on a loading gif
-        $('#map-div').hide();
-        $('#report-div').empty();
-        svg.selectAll('*').remove();
-        
-        // extract report query
-        var reportQ = getReportQueryFromControlPanel();
-        
-        // update report
-        populateReport(reportQ);
-    }
+    svg = d3.select('svg');
     
     $('#dashboard-controls').on('change', updateReport );
-    $('#time-span-buttons').on('click touchstart', updateReport );
+    $('#time-span-buttons').on('click', updateReport );
+    
+    // retrieve last query from DB and configure the panel
+    setLatestReportQueryToControlPanel();
     
     updateReport();
 }
 
-function getLatestReportQuery() {
+function setLatestReportQueryToControlPanel() {
     
     // TODO: there should be a db setting for this
     // TODO: check that this is executed at report init
     
     
     // if not present in db, return default (or just put default in the DB)
+    $('#time-span-button-start').data('time-span-start', moment().startOf('day').unix());
+    $('#time-span-button-end').data('time-span-end', moment().endOf('day').unix());
     return {
         'type': 'pie',
-        'start': 111134124,
-        'end': 114343453,
+        'start': moment().startOf('day').unix(),
+        'end': moment().startOf('day').unix(),
         'valence': 'expense'
     };  
 }
@@ -55,28 +37,88 @@ function getLatestReportQuery() {
 // extract query from the panel and save it into db before return it
 function getReportQueryFromControlPanel() {
     
-    var timeSpanStart = $('#time-span-button-start').data('time-span-start');
-    var timeSpanEnd = $('#time-span-button-end').data('time-span-end');
-    
     var reportQuery = {
         'type': $("[name='radio-type']:checked").val(),
-        'start': timeSpanStart,
-        'end': timeSpanEnd,
+        'start': $('#time-span-button-start').data('time-span-start'),
+        'end': $('#time-span-button-end').data('time-span-end'),
         'valence': $("[name='radio-valence']:checked").val()
     };
-    
-    console.log('report Query', reportQuery);
     
     return reportQuery;
 }
 
+// update report at each control panel event
+function cleanReport() {
+
+    // delete actual report contents and put on a loading gif
+    $('#map-div').hide();
+    $('#report-div').empty().hide();
+    svg.selectAll('*').remove();
+    svg.style('display', 'none');
+    // TODO: loading gif, a nice one
+}
+
+
+// each event in the control panel should fire a redraw
+function updateReport(event) {
+    
+    cleanReport();
+
+    // If the arrows where clicked, than update the arrows' timestamp
+    if(event && 'target' in event) {
+        var unixOffset = parseInt( $("[name='radio-span']:checked").val(), 10 );
+        var actualStart = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
+        var actualEnd = parseInt( $('#time-span-button-end').data('time-span-end') , 10);
+        
+        // Left arrow was clicked
+        if( $(event.target).attr('id') === 'time-span-button-start') {
+
+            var newStart = actualStart - unixOffset;
+            $('#time-span-button-start').data('time-span-start', newStart);
+
+            var newEnd = newStart + unixOffset;
+            $('#time-span-button-end').data('time-span-end', newEnd);
+        }
+        
+        // Right arrow was clicked
+        if( $(event.target).attr('id') === 'time-span-button-end') {
+
+            var newStart = actualStart + unixOffset;
+            $('#time-span-button-start').data('time-span-start', newStart);
+
+            var newEnd = newStart + unixOffset;
+            $('#time-span-button-end').data('time-span-end', newEnd);
+        }
+        
+        // Time span checkbox was clicked
+        if( $(event.target).parents('#span-control').length > 0 ) {
+            
+            // timespan end is now!
+            var newEnd = moment().unix();
+            $('#time-span-button-end').data('time-span-end', newEnd);
+
+            var newStart = newEnd - unixOffset;
+            $('#time-span-button-start').data('time-span-start', newStart);
+        }
+    }
+    
+    // extract report query from the DOM
+    var reportQ = getReportQueryFromControlPanel();
+    
+    // write time span in human readable way
+    var titleFrom = moment.unix(reportQ.start).format('YY MM DD HH:mm');
+    var titleTo = moment.unix(reportQ.end).format('YY MM DD HH:mm');
+    $('#report-title').html( titleFrom + '</br>' + titleTo );
+
+    // query data and update report
+    getDataAndPopulateReport(reportQ);
+}
+
 // Based on the reportQuery, retrieve data
-function populateReport(reportQuery){
+function getDataAndPopulateReport(reportQuery){
     
     // TODO: resolve data thick issue:
     // 3 - keep a copy of original queried data
-    
-    console.log('    getting report data from db');
     
     getRecords( reportQuery, function(tx, results){
         
@@ -87,14 +129,12 @@ function populateReport(reportQuery){
         }
         
         // update report with queried data
-        updateReport(reportQuery.type, data);
+        updateSpecificReport(reportQuery.type, data);
     } );
 
 }
 
-
-// each event in the control panel should fire a redraw
-function updateReport(type, data) {
+function updateSpecificReport(type, data) {
     if( type === 'pie' ) {
         updateReportPie(data);
     } else if( type === 'line' ) {
@@ -107,6 +147,9 @@ function updateReport(type, data) {
 }
 
 function updateReportList(data) {
+    
+    
+    $('#report-div').show();
     
     d3.select('#report-div')
         .selectAll('tr')
@@ -138,6 +181,8 @@ function updateReportList(data) {
 }
 
 function updateReportPie(data) {
+    
+    svg.style('display', 'block');
     
     // group by category
     data = groupByKey(data, 'category');
@@ -190,6 +235,8 @@ function updateReportMap(data) {
 }
     
 function updateReportLine(data) {
+    
+    svg.style('display', 'block');
     
     data = groupByKey(data, 'category');
     

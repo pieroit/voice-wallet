@@ -48,7 +48,6 @@ function precompileForm(obj) {
 
 function saveFormData() {
     
-    // TODO: scrape obj from the form
     var formImport = parseFloat( $('#form-import').val() );
     formImport *= parseFloat( $('#form-import-polarity').val() );
     var obj = {

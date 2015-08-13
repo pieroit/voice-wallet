@@ -176,8 +176,25 @@ function insertRecord( recordObj ) {
 
 function getRecords( queryObject, callback ) {
     db.transaction( function(tx) {
+        
+        var query = 'SELECT * FROM transactions WHERE';
+        
+        // get expenses or incomes or both?
+        if( queryObject.valence === 'expense' ) {
+            query += ' import < 0 AND';
+        } else if(queryObject.valence === 'income' ) {
+            query += ' import > 0 AND';
+        }
+        query += ' time > ' + queryObject.start;
+        query += ' AND time < ' + queryObject.end;
+        
+        query += ' ORDER BY time DESC';
+        
         console.log('    getting data to populate report', queryObject);
-        var query = 'SELECT * FROM transactions ORDER BY time DESC';
+        console.log('        ', moment.unix( queryObject.start ).format());
+        console.log('        ', moment.unix( queryObject.end ).format());
+        console.log(query);
+        
         tx.executeSql(query, [], callback, errorCB);
     });
 }

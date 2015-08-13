@@ -7,6 +7,7 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         
         <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+        <link rel="stylesheet" href="css/native-droid/nativedroid2.css">
         <link rel="stylesheet" href="css/font-awesome-4.4.0/css/font-awesome.min.css" />  
         <link rel="stylesheet" href="js/nv.d3/nv.d3.min.css" />
         <link rel="stylesheet" href="js/leaflet/leaflet.css" />
@@ -27,7 +28,7 @@
         <script type="text/javascript" src="js/form.js"></script>
         <script type="text/javascript" src="js/app.js"></script>
         
-        <title>Name?</title>
+        <title>Boink</title>
     </head>
     <body>
         
@@ -41,12 +42,13 @@
                 </div>
             </div>
             
-            <h1>Prima app</h1>
-            <div> 
-                <input id="speakGreen" type="button" value="Add income">
-                <input id="speakRed" type="button" value="Add expense">         
+            <div data-role="content">
+                <div>
+                    <button class="fa fa-microphone" id="speak-green" type="button"></button>
+                    <button class="fa fa-microphone" id="speak-red" type="button"></button>        
+                </div>
             </div>
-            
+
             <div data-role="footer" data-position="fixed">
                 <div data-role="navbar" id="navmenu">
                     <ul>
@@ -56,91 +58,16 @@
                     </ul>
                 </div>
             </div>
+            
         </div>
         <!-- end home page -->
         
         
-        <!-- report page -->
-        <div id="report" data-role="page">
-            
-            <div id="plot-container">
-                <table id="report-div"></table>
-                <div id="map-div"></div>
-                <svg id="report-svg"></svg>
-            </div>
-            
-            <div id="dashboard-controls">
-                
-                <div id="time-span-buttons">
-                    <a id="time-span-button-start" data-role="button" data-inline="true" data-time-span-start="55555555">o--</a>
-                    <span id="report-title">Plot title</span>
-                    <a id="time-span-button-end" data-role="button" data-inline="true" data-time-span-end="66666666">--o</a>
-                </div>
-                
-                <fieldset data-role="controlgroup" id="type-control">
-                    <legend>Report type</legend>
-                    <input type="radio" name="radio-type" id="radio-type-list" value="list" checked="checked" />
-                    <label for="radio-type-list">List</label>
-
-                    <input type="radio" name="radio-type" id="radio-type-pie" value="pie"  />
-                    <label for="radio-type-pie" class="ui-icon-cloud">Pie</label>
-
-                    <input type="radio" name="radio-type" id="radio-type-line" value="line"  />
-                    <label for="radio-type-line" class="ui-icon-clock-o">Line</label>
-
-                    <input type="radio" name="radio-type" id="radio-type-map" value="map" />
-                    <label for="radio-type-map" class="ui-icon-map-marker">Map</label>
-                </fieldset>
-
-                <fieldset data-role="controlgroup" id="span-control">
-                    <legend>Time span</legend>
-                    <input type="radio" name="radio-span" id="radio-span-day" value="day" checked="checked" />
-                    <label for="radio-span-day">Day</label>
-
-                    <input type="radio" name="radio-span" id="radio-span-week" value="week"  />
-                    <label for="radio-span-week">Week</label>
-
-                    <input type="radio" name="radio-span" id="radio-span-month" value="month"  />
-                    <label for="radio-span-month">Month</label>
-
-                    <input type="radio" name="radio-span" id="radio-span-year" value="year"  />
-                    <label for="radio-span-year">Year</label>
-                </fieldset>
-
-                <fieldset data-role="controlgroup" id="valence-control">
-                    <legend>Valence</legend>
-                    <input type="radio" name="radio-valence" id="radio-valence-expense" value="expense" checked="checked" />
-                    <label for="radio-valence-expense">Expense</label>
-
-                    <input type="radio" name="radio-valence" id="radio-valence-income" value="income"  />
-                    <label for="radio-valence-income">Income</label>
-
-                    <input type="radio" name="radio-valence" id="radio-valence-balance" value="balance"  />
-                    <label for="radio-valence-balance">Balance</label>
-                </fieldset>
-
-                <label for="search-control-group">Filter</label>     
-                <input type="text" id="search-control-group" data-wrapper-class="controlgroup-textinput ui-btn">
-            </div>
-            
-            <div data-role="footer" data-position="fixed">
-                <div data-role="navbar" id="navmenu">
-                    <ul>
-                        <li><a class="fa fa-microphone" href="#home"></a></li>
-                        <li><a class="fa fa-eye" href="#report"></a></li>
-                        <li><a class="fa fa-cog" href="#options"></a></li>
-                    </ul>
-                </div>
-            </div>
-            
-        </div>
-        <!-- end report page -->
-        
         <!-- form page -->
         <div id="form" data-role="page">
         
-            <div>
-                <div id="spoken">...</div>
+            <div data-role="content">
+                <div class="fa fa-circle" id="spoken"> recording...</div>
                 
                 <span class="form-inline">
                     <input id="form-import-polarity" type="hidden" value="1" >
@@ -178,9 +105,98 @@
         </div>
         <!-- end form page -->
         
+        
+        <!-- report page -->
+        <div id="report" data-role="page">
+            
+            <div id="report-content" data-role="content">
+                <div id="plot-container">
+                    <table id="report-div"></table>
+                    <div id="map-div"></div>
+                    <svg id="report-svg"></svg>
+                </div>
+
+                <div id="dashboard-controls">
+
+                    <div id="time-span-buttons">
+                        <a class="fa fa-chevron-left" id="time-span-button-start" data-role="button" data-inline="true" data-time-span-start="55555555"></a>
+                        <span id="report-title">...</span>
+                        <a class="fa fa-chevron-right" id="time-span-button-end" data-role="button" data-inline="true" data-time-span-end="66666666"></a>
+                    </div>
+
+                    <fieldset data-role="controlgroup" id="type-control">
+                        <legend>Report type</legend>
+                        <input type="radio" name="radio-type" id="radio-type-list" value="list" checked="checked" />
+                        <label class="fa fa-list-ul" for="radio-type-list"></label>
+
+                        <input type="radio" name="radio-type" id="radio-type-pie" value="pie"  />
+                        <label class="fa fa-pie-chart" for="radio-type-pie"></label>
+
+                        <input type="radio" name="radio-type" id="radio-type-line" value="line"  />
+                        <label class="fa fa-area-chart" for="radio-type-line"></label>
+
+                        <input type="radio" name="radio-type" id="radio-type-map" value="map" />
+                        <label class="fa fa-map-o" for="radio-type-map"></label>
+                    </fieldset>
+
+                    <fieldset data-role="controlgroup" id="span-control">
+                        <legend>Time span</legend>
+                        <input type="radio" name="radio-span" id="radio-span-day" value="86400" checked="checked" />
+                        <label for="radio-span-day">Day</label>
+
+                        <input type="radio" name="radio-span" id="radio-span-week" value="604800"  />
+                        <label for="radio-span-week">Week</label>
+
+                        <input type="radio" name="radio-span" id="radio-span-month" value="2630000"  />
+                        <label for="radio-span-month">Month</label>
+
+                        <input type="radio" name="radio-span" id="radio-span-year" value="31560000"  />
+                        <label for="radio-span-year">Year</label>
+                    </fieldset>
+
+                    <fieldset data-role="controlgroup" id="valence-control">
+                        <legend>Valence</legend>
+
+                        <input type="radio" name="radio-valence" id="radio-valence-expense" value="expense" checked="checked" />
+                        <label  class="fa fa-frown-o" for="radio-valence-expense"></label>
+
+                        <input type="radio" name="radio-valence" id="radio-valence-balance" value="balance"  />
+                        <label class="fa fa-meh-o" for="radio-valence-balance"></label>
+
+                        <input type="radio" name="radio-valence" id="radio-valence-income" value="income"  />
+                        <label class="fa fa-smile-o" for="radio-valence-income"></label>
+
+                    </fieldset>
+
+                    <!-- search
+                    <label for="search-control-group">Filter</label>     
+                    <input type="text" id="search-control-group" data-wrapper-class="controlgroup-textinput ui-btn">
+                    -->
+                </div>
+            </div>
+            
+            <div data-role="footer" data-position="fixed">
+                <div data-role="navbar" id="navmenu">
+                    <ul>
+                        <li><a class="fa fa-microphone" href="#home"></a></li>
+                        <li><a class="fa fa-eye" href="#report"></a></li>
+                        <li><a class="fa fa-cog" href="#options"></a></li>
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+        <!-- end report page -->
+       
+        
         <!-- options page -->
         <div id="options" data-role="page">
-            <h1>Opzioni tacci tua</h1>
+            
+            <div data-role="content">
+                <div id="spoken">...</div>
+                <h1>Opzioni e credits</h1>
+                Qua devo mettere: scelta della lingua, scelta della currency e licenze.                
+            </div>
             
             
             <div data-role="footer" data-position="fixed">
@@ -247,13 +263,13 @@
                 };
                 console.log('recognition', recognition);
 
-                $('#speakGreen').on('click', function(){
+                $('#speak-green').on('click', function(){
                     initForm(1);
                     $.mobile.navigate('#form');
                     recognition.start();                            
                 });
 
-                $('#speakRed').on('click', function(){
+                $('#speak-red').on('click', function(){
                     initForm(-1);
                     $.mobile.navigate('#form');
                     recognition.start();                            
