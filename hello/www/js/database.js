@@ -24,7 +24,7 @@ var dumpRecords = [
         description: '...'
     },
     {
-        time: moment('2015-01-05 10:30').unix(),
+        time: moment('2015-01-05 6:30').unix(),
         import: -130,
         category: 'spesa',
         description: '...'
@@ -48,7 +48,7 @@ var dumpRecords = [
         description: '...'
     },
     {
-        time: moment('2015-01-23 10:30').unix(),
+        time: moment('2015-01-23 12:30').unix(),
         import: 100,
         category: 'paghetta',
         description: 'posso comprare sipiderman!'
@@ -76,8 +76,8 @@ function cleanDB(tx){
 // Create DB
 function createDB(tx) {
     
-    // Delete tables... TODO: not good for production
-    cleanDB(tx);
+    // Delete tables...
+    //cleanDB(tx);
     
     // Create tables
     tx.executeSql('CREATE TABLE IF NOT EXISTS transactions (id TEXT PRIMARY KEY, time INTEGER, import REAL, currency TEXT, category TEXT, description TEXT, latitude REAL, longitude REAL)'); 
@@ -136,17 +136,22 @@ function errorCB(err) {
 }
 
 function validateRecord( record ) {
-    if( !record.currency )
+    if( !record) {
+        record = {};
+    }
+    if( ! ('time' in record) )
+        record.time = moment().unix();
+    if( ! ('currency' in record) )
         record.currency = 'EUR';
-    if( !record.description )
+    if( ! ('description' in record) )
         record.description = ' ';
-    if( !record.latitude )
+    if( ! ('import' in record) )
+        record.import = 0.0;
+    if( ! ('latitude' in record) )
         record.latitude = 0.0;
-    if( !record.longitude )
+    if( ! ('longitude' in record) )
         record.longitude = 0.0; 
-    
-    // TODO: make other checks on the other fields
-    
+        
     return record;
 }
 
@@ -160,7 +165,7 @@ function insertRecord( recordObj ) {
         //console.log('inserting', recordObj, 'into DB');
         var query = 'INSERT INTO transactions (id, time, import, currency, category, description, latitude, longitude) VALUES (';
         query += '"' + moment().valueOf() + '"';            // TODO: find a better id
-        query += ', ' + moment().unix();                 // time TODO: this could be set manually in the form... please check
+        query += ', ' + recordObj.time;                 // time TODO: this could be set manually in the form... please check
         query += ', ' + recordObj.import.toString();
         query += ', "' + recordObj.currency + '"';
         query += ', "' + recordObj.category + '"';      

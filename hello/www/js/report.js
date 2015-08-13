@@ -58,35 +58,30 @@ function cleanReport() {
     // TODO: loading gif, a nice one
 }
 
-
-// each event in the control panel should fire a redraw
-function updateReport(event) {
-    
-    cleanReport();
-
-    // If the arrows where clicked, than update the arrows' timestamp
+function updateTimeSpan(event) {
+   
     if(event && 'target' in event) {
-        var unixOffset = parseInt( $("[name='radio-span']:checked").val(), 10 );
+        var verbalTimeSpan = $("[name='radio-span']:checked").data('verbal-span');
+        var timeOffset = parseInt( $("[name='radio-span']:checked").val(), 10 );
         var actualStart = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
-        var actualEnd = parseInt( $('#time-span-button-end').data('time-span-end') , 10);
         
         // Left arrow was clicked
         if( $(event.target).attr('id') === 'time-span-button-start') {
 
-            var newStart = actualStart - unixOffset;
+            var newStart = actualStart - timeOffset;
             $('#time-span-button-start').data('time-span-start', newStart);
 
-            var newEnd = newStart + unixOffset;
+            var newEnd = newStart + timeOffset;
             $('#time-span-button-end').data('time-span-end', newEnd);
         }
         
         // Right arrow was clicked
         if( $(event.target).attr('id') === 'time-span-button-end') {
 
-            var newStart = actualStart + unixOffset;
+            var newStart = actualStart + timeOffset;
             $('#time-span-button-start').data('time-span-start', newStart);
 
-            var newEnd = newStart + unixOffset;
+            var newEnd = newStart + timeOffset;
             $('#time-span-button-end').data('time-span-end', newEnd);
         }
         
@@ -95,12 +90,25 @@ function updateReport(event) {
             
             // timespan end is now!
             var newEnd = moment().unix();
+            
+            // round to the end of day/week/month/year
+            newEnd = moment.unix(newEnd).endOf(verbalTimeSpan).unix();
+            
             $('#time-span-button-end').data('time-span-end', newEnd);
 
-            var newStart = newEnd - unixOffset;
+            var newStart = newEnd - timeOffset;
             $('#time-span-button-start').data('time-span-start', newStart);
         }
     }
+}
+
+// each event in the control panel should fire a redraw
+function updateReport(event) {
+    
+    cleanReport();
+    
+    // If the arrows where clicked, than update the arrows' timestamp
+    updateTimeSpan(event);
     
     // extract report query from the DOM
     var reportQ = getReportQueryFromControlPanel();
@@ -242,7 +250,7 @@ function updateReportLine(data) {
     
     //console.log('result', data);
     
-    data = fixTimeThicks(data, 'hours');
+    data = fixTimeThicks(data);
     
     //console.log(data);
     
@@ -275,13 +283,14 @@ function updateReportLine(data) {
                   .clipEdge(true);
 
         //Format x-axis labels with custom function.
-        /*chart.xAxis
+        chart.xAxis
             .tickFormat(function(d) { 
-              return d3.time.format('%x')(new Date(d)) 
-        });*/        
+                return d;
+                return d3.time.format('%x')(new Date(d));
+        });        
 
-        chart.yAxis
-            .tickFormat(d3.format(',.2f'));
+        /*chart.yAxis
+            .tickFormat(d3.format(',.2f'));*/
 
         svg.datum(data)
             .call(chart);
@@ -320,9 +329,13 @@ function groupByKey(data, groupingKey) {
     return newData;
 }
 
-function fixTimeThicks(data, timeRange) {
+function fixTimeThicks(data) {
     
-    var timeThicks = [0,1,2,3,4,5,6];
+    var timeStart = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
+    var timeEnd = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
+    var verbalTimeSpan = $("[name='radio-span']:checked").data('verbal-span');
+    
+    var timeThicks = getThicksFromVerbalTimespan(verbalTimeSpan);
     var newData = [];
     
     // Loop over categories
@@ -337,7 +350,8 @@ function fixTimeThicks(data, timeRange) {
         // Gather already present values
         var timeThicksSum = {};
         for(var j=0; j<data[i].values.length; j++){
-            var timeThick = moment(data[i].values[j].time).day();
+            var unixTime = data[i].values[j].time;
+            var timeThick = getSingleThickFromUnixAndVerbalTimespan( unixTime, verbalTimeSpan );
             
             if( !(timeThick in timeThicksSum) ){
                 timeThicksSum[timeThick] = 0.0;
@@ -363,4 +377,46 @@ function fixTimeThicks(data, timeRange) {
     }
     
     return newData;
+}
+
+function getThicksFromVerbalTimespan( verbalSpan ) {
+    
+    var thicks = [];
+    var nThicks;
+    
+    if(verbalSpan === 'day') {
+        nThicks = 24;
+    }
+    if(verbalSpan === 'week') {
+        nThicks = 7;
+    }
+    if(verbalSpan === 'month') {
+        nThicks = 4;
+    }
+    if(verbalSpan === 'year') {
+        nThicks = 12;
+    }
+    
+    for(var i=0; i<nThicks; i++){
+        thicks.push(i);
+    }
+    return thicks;
+}
+
+function getSingleThickFromUnixAndVerbalTimespan( unixTime, verbalSpan ) {
+    
+    var unixMoment = moment.unix(unixTime);
+    
+    if(verbalSpan === 'day') {
+        return unixMoment.hour();
+    }
+    if(verbalSpan === 'week') {
+        return unixMoment.day();
+    }
+    if(verbalSpan === 'month') {
+        return Math.floor( unixMoment.date() / 7.0 );
+    }
+    if(verbalSpan === 'year') {
+        return unixMoment.month();
+    }
 }
