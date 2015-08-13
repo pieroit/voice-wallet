@@ -62,26 +62,25 @@ function updateTimeSpan(event) {
    
     if(event && 'target' in event) {
         var verbalTimeSpan = $("[name='radio-span']:checked").data('verbal-span');
-        var timeOffset = parseInt( $("[name='radio-span']:checked").val(), 10 );
         var actualStart = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
         
         // Left arrow was clicked
         if( $(event.target).attr('id') === 'time-span-button-start') {
 
-            var newStart = actualStart - timeOffset;
+            var newStart = moment.unix(actualStart).subtract(1, verbalTimeSpan).startOf(verbalTimeSpan).unix();
             $('#time-span-button-start').data('time-span-start', newStart);
 
-            var newEnd = newStart + timeOffset;
+            var newEnd = moment.unix(newStart).endOf(verbalTimeSpan).unix();
             $('#time-span-button-end').data('time-span-end', newEnd);
         }
         
         // Right arrow was clicked
         if( $(event.target).attr('id') === 'time-span-button-end') {
 
-            var newStart = actualStart + timeOffset;
+            var newStart = moment.unix(actualStart).add(1, verbalTimeSpan).startOf(verbalTimeSpan).unix();
             $('#time-span-button-start').data('time-span-start', newStart);
 
-            var newEnd = newStart + timeOffset;
+            var newEnd = moment.unix(newStart).endOf(verbalTimeSpan).unix();
             $('#time-span-button-end').data('time-span-end', newEnd);
         }
         
@@ -96,7 +95,7 @@ function updateTimeSpan(event) {
             
             $('#time-span-button-end').data('time-span-end', newEnd);
 
-            var newStart = newEnd - timeOffset;
+            var newStart = moment.unix(newEnd).startOf(verbalTimeSpan).unix();
             $('#time-span-button-start').data('time-span-start', newStart);
         }
     }
@@ -116,7 +115,9 @@ function updateReport(event) {
     // write time span in human readable way
     var titleFrom = moment.unix(reportQ.start).format('YY MM DD HH:mm');
     var titleTo = moment.unix(reportQ.end).format('YY MM DD HH:mm');
-    $('#report-title').html( titleFrom + '</br>' + titleTo );
+    var verbalTimeSpanFormat = $("[name='radio-span']:checked").data('verbal-format');
+    var humanReadableTimespan = moment.unix(reportQ.end).format(verbalTimeSpanFormat);
+    $('#report-title').html( titleFrom + '</br>' + humanReadableTimespan + '</br>' + titleTo );
 
     // query data and update report
     getDataAndPopulateReport(reportQ);
@@ -331,8 +332,6 @@ function groupByKey(data, groupingKey) {
 
 function fixTimeThicks(data) {
     
-    var timeStart = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
-    var timeEnd = parseInt( $('#time-span-button-start').data('time-span-start') , 10);
     var verbalTimeSpan = $("[name='radio-span']:checked").data('verbal-span');
     
     var timeThicks = getThicksFromVerbalTimespan(verbalTimeSpan);
@@ -391,7 +390,7 @@ function getThicksFromVerbalTimespan( verbalSpan ) {
         nThicks = 7;
     }
     if(verbalSpan === 'month') {
-        nThicks = 4;
+        nThicks = 5;
     }
     if(verbalSpan === 'year') {
         nThicks = 12;

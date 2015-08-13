@@ -141,16 +141,16 @@
 
                     <fieldset data-role="controlgroup" id="span-control">
                         <legend>Time span</legend>
-                        <input type="radio" name="radio-span" id="radio-span-day" value="86400" data-verbal-span="day" checked="checked" />
+                        <input type="radio" name="radio-span" id="radio-span-day" data-verbal-span="day" data-verbal-format="DD MMM YYYY" checked="checked" />
                         <label for="radio-span-day">Day</label>
 
-                        <input type="radio" name="radio-span" id="radio-span-week" value="604800" data-verbal-span="week" />
+                        <input type="radio" name="radio-span" id="radio-span-week" data-verbal-span="week" data-verbal-format="wo [week -] MMM YYYY" />
                         <label for="radio-span-week">Week</label>
 
-                        <input type="radio" name="radio-span" id="radio-span-month" value="2630000" data-verbal-span="month" />
+                        <input type="radio" name="radio-span" id="radio-span-month" data-verbal-span="month"  data-verbal-format="MMM YYYY"/>
                         <label for="radio-span-month">Month</label>
 
-                        <input type="radio" name="radio-span" id="radio-span-year" value="31560000" data-verbal-span="year" />
+                        <input type="radio" name="radio-span" id="radio-span-year" data-verbal-span="year" data-verbal-format="YYYY" />
                         <label for="radio-span-year">Year</label>
                     </fieldset>
 
