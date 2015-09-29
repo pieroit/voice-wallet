@@ -7,7 +7,7 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         
         <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
-        <link rel="stylesheet" href="css/native-droid/nativedroid2.css">
+        <!-- <link rel="stylesheet" href="css/native-droid/nativedroid2.css"> -->
         <link rel="stylesheet" href="css/font-awesome-4.4.0/css/font-awesome.min.css" />  
         <link rel="stylesheet" href="js/nv.d3/nv.d3.min.css" />
         <link rel="stylesheet" href="js/leaflet/leaflet.css" />
@@ -74,26 +74,21 @@
                     <input id="form-import-polarity" type="hidden" value="1" >
                     <input id="form-import" type="number" placeholder="import" >
                 </span>
-                <!--<span class="form-inline">-->
-                    <!--<select id="form-currency" data-mini="true" >
-                        <option value="EUR" selected>&#8364;</option>
-                        <option value="DOL">$</option>
-                        <option value="YEN">Y</option>
-                    </select>-->
-                    <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
-                        <input type="radio" name="form-currency" id="radio-choice-h-2a" value="EUR" checked="checked">
-                        <label for="radio-choice-h-2a">&#128;</label>
-                        <input type="radio" name="form-currency" id="radio-choice-h-2b" value="USD">
-                        <label for="radio-choice-h-2b">$</label>
-                    </fieldset>
-                <!--</span>-->
+
+                <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
+                    <input type="radio" name="form-currency" id="radio-choice-h-2a" value="EUR" checked="checked">
+                    <label for="radio-choice-h-2a">&#128;</label>
+                    <input type="radio" name="form-currency" id="radio-choice-h-2b" value="USD">
+                    <label for="radio-choice-h-2b">$</label>
+                </fieldset>
+
                 <textarea id="form-description" placeholder="description" ></textarea>
-                <input id="form-category" type="text" name="text-basic" placeholder="category" >
+                <input id="form-category" type="text" placeholder="category" >
                 <span class="form-inline">
-                    <input id="form-data" type="date" name="text-basic">
+                    <input id="form-date" type="date">
                 </span>
                 <span class="form-inline">
-                    <input id="form-data" type="time" name="text-basic">
+                    <input id="form-time" type="time">
                 </span>
                 <div id="form-map"></div>
                 <div>
@@ -256,6 +251,7 @@
                         
                         // parse command
                         var obj = parser.parse(voiceInput);
+                        obj.import = obj.amount;    // TODO: change parser to output import instead of amount
                         
                         // give visual feedback
                         console.log(obj);

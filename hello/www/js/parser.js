@@ -1,61 +1,8 @@
-
-    var optionalParam = /\s*\((.*?)\)\s*/g;
-    var optionalRegex = /(\(\?:[^)]+\))\?/g;
-    var namedParam    = /(\(\?)?:\w+/g;
-    var splatParam    = /\*\w+/g;
-    var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#]/g;
-    var commandToRegExp = function(command) {
-        command = command.replace(escapeRegExp, '\\$&')
-            .replace(optionalParam, '(?:$1)?')
-            .replace(namedParam, function(match, optional) {
-            return optional ? match : '([^\\s]+)';
-            })
-            .replace(splatParam, '(.*?)')
-            .replace(optionalRegex, '\\s*$1?\\s*');
-        return new RegExp('^' + command + '$', 'i');
-    };
-    
-    var parseSentence = function(s){
-        var obj = {};
-        var commandsList = [];
-        
-        s = s.trim();
-        
-        //convert command to regex
-        var phrases = [
-            '€*import *content (' + i0n('categoria') + ' *cat)',
-            i0n('si'),
-            i0n('no')];
-        for(var i=0; i<phrases.length; i++){
-            var command = commandToRegExp(phrases[i]);
-            commandsList.push({ command: command });
-            console.log('compiled command', command);
-        }
-        
-        console.log('----');
-        
-        for (var j=0; j<commandsList.length; j++) {
-            console.log('sentence', s, 'against', commandsList[j].command);
-            var result = commandsList[j].command.exec(s);
-            
-            console.log(result);
-            if(result){
-                result = result.splice(1);
-                if(result.length >= 3){
-                    obj.import = +result[0];
-                    obj.currency = 'EUR';
-                    obj.description = result[1].trim();
-                    obj.category = result[2];
-                }
-            }
-        }
-        
-        return obj;
-    };
-    
-    
-    
 // by pieroit
+
+// TODO: 1,50 €
+// TODO: 1.000.000 €
+// currency canonical form
 
 var Parser = function(){
     this.availableCurrencies = ['€','euro','euros', '$','dollar','dollars']; // TODO: lista in tutte le lingue e con i valori canonical
@@ -145,6 +92,8 @@ Parser.prototype = {
         var categoryLemma = this.sentence.match( categoryLemmaRegex );
         
         if(categoryLemma){
+            
+            this.model.categoryLemma = categoryLemma;
 
             var categoryRegex = VerEx().add(categoryLemma).add(' ').anything();
             var categoryAndLemma = this.matchFirstResult( this.sentence, categoryRegex );
@@ -161,6 +110,8 @@ Parser.prototype = {
         this.model.description = this.sentence
                 .replace( this.model.price, '' )
                 .replace( this.model.category, '' )
+                .replace( this.model.categoryLemma, '' )
+                .replace( '  ', ' ')
                 .trim();
         
         return this.model.description;

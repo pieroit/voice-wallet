@@ -14,7 +14,12 @@ jQuery(document).ready( function($){
 function initForm(recordPolarity){
     
     // Set record polarity in the form
-    $('#form-import-polarity').val(recordPolarity);
+    $('#form-import-polarity').val( recordPolarity );
+    
+    // init default values
+    // TODO: date is american style... should be european
+    $('#form-date').val( moment().format('YYYY-MM-DD') );
+    $('#form-time').val( moment().format('HH:mm') );
     
     // TODO: get current location or latest location
     if(!formMap) {
@@ -33,6 +38,12 @@ function initForm(recordPolarity){
 }
 
 function precompileForm(obj) {
+    
+    if( !obj.time ){
+        obj.time = moment().unix();
+    }
+    var objDate = moment.unix( obj.time ).format('YYYY-MM-DD');
+    var objTime = moment.unix( obj.time ).format('HH:mm');
 
     // update form
     if( obj !== {} ) {
@@ -40,7 +51,8 @@ function precompileForm(obj) {
         $("[name='form-currency']:checked").val();  // not easy :|
         $('#form-description').val( obj.description );
         $('#form-category').val( obj.category );
-        //time: 0;  // TODO
+        $('#form-date').val( objDate );
+        $('#form-time').val( objTime );
         //latitude: 0;  // TODO
         //longitude : 0;    // TODO
     }
@@ -50,12 +62,18 @@ function saveFormData() {
     
     var formImport = parseFloat( $('#form-import').val() );
     formImport *= parseFloat( $('#form-import-polarity').val() );
+    
+    var formDate = $('#form-date').val();
+    var formTime = $('#form-time').val();
+    var formDateTime = moment(formDate + 'T' + formTime);
+    console.log(formDate, formTime, formDateTime);
+    
     var obj = {
         import: formImport,
         currency: $("[name='form-currency']:checked").val(),
         description: $('#form-description').val(),
         category: $('#form-category').val(),
-        time: moment().unix(),  // TODO!
+        time: formDateTime.unix(),
         latitude: 0, // TODO
         longitude : 0 // TODO
     };
@@ -71,11 +89,16 @@ function saveFormData() {
 }
 
 function cancelFormData() {
+    
+    // TODO: clean form from data
+    
     //$.mobile.navigate('#home');
     history.back();
 }
 
 function deleteFormData() {
     //$.mobile.navigate('#home');
-    history.back();
+    // TODO: should delete record
+    
+    cancelFormData();
 }
