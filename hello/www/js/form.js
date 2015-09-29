@@ -55,7 +55,7 @@ function saveFormData() {
         currency: $("[name='form-currency']:checked").val(),
         description: $('#form-description').val(),
         category: $('#form-category').val(),
-        time: 0,  // TODO
+        time: moment().unix(),  // TODO!
         latitude: 0, // TODO
         longitude : 0 // TODO
     };

@@ -22,6 +22,7 @@
         <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
         <script type="text/javascript" src="js/i0n.js"></script>
+        <script type="text/javascript" src="js/VerbalExpressions.js"></script>
         <script type="text/javascript" src="js/parser.js"></script>
         <script type="text/javascript" src="js/report.js"></script>
         <script type="text/javascript" src="js/database.js"></script>
@@ -214,6 +215,7 @@
         <script>
             
             var recognition;
+            var parser;
             
             var deviceReadyDeferred = $.Deferred();
             var jqmReadyDeferred = $.Deferred();
@@ -242,6 +244,8 @@
             function appInit() {
                 
                 console.log('appInit fired', db);
+                
+                parser = new Parser();
 
                 recognition = new SpeechRecognition();
                 recognition.lang = 'it-IT';
@@ -251,7 +255,7 @@
                         var voiceInput = event.results[0][0].transcript;
                         
                         // parse command
-                        var obj = parseSentence(voiceInput);
+                        var obj = parser.parse(voiceInput);
                         
                         // give visual feedback
                         console.log(obj);
