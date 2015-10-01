@@ -16,7 +16,7 @@ describe('Database functions', function(){
         spyOn(db, 'errorCallback');
         db.query('SELEC');
         setTimeout( function(){
-            expect(db.errorCallback).toHaveBeenCalledWith(123);
+            expect(db.errorCallback).toHaveBeenCalled();
             done();
         }, 500);
     });
@@ -45,11 +45,11 @@ describe('Database functions', function(){
     });
     
     // Should be a form method... not DB
-    it('validate record', function(){
+    it('validates record', function(){
         
     });
     
-    it('insert record', function(done){
+    it('inserts record', function(done){
         db.upsertRecord({
             time: 1111111111,
             amount: -300,
@@ -69,7 +69,7 @@ describe('Database functions', function(){
         });
     });
     
-    it('upsert record', function(done){
+    it('upserts record', function(done){
         var obj = {
             id: 123456789,
             time: 1111111111,
@@ -103,7 +103,11 @@ describe('Database functions', function(){
         });
     });
     
-    it('get records', function(){
+    it('deletes records', function(){
+            
+    });
+    
+    it('gets records', function(){
             
     });
 
