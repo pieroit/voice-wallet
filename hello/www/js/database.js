@@ -18,7 +18,7 @@ Database.prototype = {
         
         this.db.transaction( function(tx) {
         
-            console.log(queryString);
+            //console.log(queryString);
             tx.executeSql(queryString, [], callback, dbObj.errorCallback);
         });
         
@@ -70,18 +70,20 @@ Database.prototype = {
             record.latitude = 0.0;
         if( ! ('longitude' in record) )
             record.longitude = 0.0; 
-            console.log(record);
         return record;
     },
     
+    deleteRecord: function(id){
+        this.query('DELETE FROM transactions WHERE id=' + id);
+    },
+    
     // Upsert record
-    // TODO: there is only insert right now
     upsertRecord: function(recordObj, callback){
         
         // Sanitize
         recordObj = this.sanitizeRecord( recordObj );
         
-        var query = 'INSERT INTO transactions (id, time, amount, currency, category, description, latitude, longitude) VALUES (';
+        var query = 'INSERT OR REPLACE INTO transactions (id, time, amount, currency, category, description, latitude, longitude) VALUES (';
         query += recordObj.id;
         query += ', ' + recordObj.time;
         query += ', ' + recordObj.amount.toString();
@@ -91,7 +93,7 @@ Database.prototype = {
         query += ', ' + recordObj.latitude;
         query += ', ' + recordObj.longitude;
         query += ')';
-
+        
         this.query( query, callback );
     },
     

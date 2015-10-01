@@ -1,11 +1,13 @@
 // by pieroit
 
-// TODO: 1,50 €
-// TODO: 1.000.000 €
 // TODO: currency canonical form
 
 var Parser = function(){
-    this.availableCurrencies = ['€','euro','euros', '$','dollar','dollars']; // TODO: lista in tutte le lingue e con i valori canonical
+    this.canonicalCurrencies = {
+        'EUR': ['€','euro','euros'],
+        'USD': ['$','dollar','dollars']
+    };
+    this.availableCurrencies = this.concatenateCurrencies();
     this.availableCategoryLemmas = ['category', 'categoria'];   // TODO: tutte le lingue
     this.sentence = '';
     this.model = {};
@@ -28,7 +30,12 @@ Parser.prototype = {
         
         // currencies
         var currencyRegex = this.buildOrRegex( this.availableCurrencies );
-        this.model.currency = this.matchFirstResult( this.sentence, currencyRegex );
+        var currency = this.matchFirstResult( this.sentence, currencyRegex );
+        
+        // Return canonical form
+        this.model.currency = this.getCurrencyCanonical(currency);
+        this.model.rawCurrency = currency;
+        
         return this.model.currency;
     },
     
@@ -36,15 +43,19 @@ Parser.prototype = {
         
         this.model.amount = null;
         
-        var amountRegex = VerEx().add( '[0-9]+' );
+        //var amountRegex = VerEx().add( '[0-9]+' );
+        //var amountFloatRegex = VerEx().add('[0-9]+').maybe(',').add('[0-9]+');
+        //var amountLongRegex = VerEx().add('[0-9]+').maybe('.').add('[0-9]+');
+        var amountRegex = VerEx().add('([0-9]+.)?').add('[0-9]+').add('(,[0-9]+)?');
         var amount = this.sentence.match( amountRegex );
         
         if( amount ){
+            
             if( amount.length === 1 ){
                 this.model.amount = amount[0];
             } else {
                 // there may be more numbers. Take the one with the nearest currency
-                var currencyPosition = this.sentence.indexOf( this.model.currency );
+                var currencyPosition = this.sentence.indexOf( this.model.rawCurrency );
                 var nearestAmountDistance = 1000000;
                 var nearestAmount;
                 for(var a=0; a<amount.length; a++){
@@ -60,17 +71,21 @@ Parser.prototype = {
             }
         }
         
-        
+        // convert to number
+        // taking away . from long numbers (1.000.000) and substituting , with . for real numbers
+        this.model.amount = parseFloat( this.model.amount.replace('.', '').replace(',','.') );
         return this.model.amount;
     },
     
     parsePrice: function(){
         
         // currency
-        var currency = this.parseCurrency();
+        this.parseCurrency();
+        var currency = this.model.rawCurrency;
 
         // amount
-        var amount = this.parseAmount();
+        this.parseAmount();
+        var amount = this.model.amount;
         
         // allow the two in different order
         var currencyAmountRegex = VerEx().add(currency).maybe(' ').add(amount);
@@ -136,6 +151,35 @@ Parser.prototype = {
         }
         
         return orRegex;
+    },
+    
+    concatenateCurrencies: function(){
+        
+        var currencies = [];
+        
+        for(k in this.canonicalCurrencies){
+            for(curr in this.canonicalCurrencies[k] ){
+                var newCurr = this.canonicalCurrencies[k][curr];
+                currencies.push(newCurr);
+            }
+        }
+
+        return currencies;
+    },
+    
+    getCurrencyCanonical: function(currency){
+
+        for(k in this.canonicalCurrencies){
+            for(curr in this.canonicalCurrencies[k] ){
+                
+                var availableCurr = this.canonicalCurrencies[k][curr];
+                if( currency === availableCurr ){
+                    return k;
+                }
+            }
+        }
+        
+        return null;
     }
     
 };

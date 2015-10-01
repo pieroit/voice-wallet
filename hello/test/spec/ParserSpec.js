@@ -22,7 +22,7 @@ describe('Parses simple expense sentences', function(){
             
         basicSentences.forEach( function( sentence ){
             var obj = pars.parse( sentence );
-            expect( obj.currency ).toEqual('€');
+            expect( obj.currency ).toEqual('EUR');
         });
     });
     
@@ -30,8 +30,21 @@ describe('Parses simple expense sentences', function(){
             
         basicSentences.forEach( function( sentence ){
             var obj = pars.parse( sentence );
-            expect( obj.amount ).toEqual('10');
+            expect( obj.amount ).toEqual(10);
         });
+        
+        // Test for float and long numbers
+        var obj = pars.parse('comprato €10,50 di latte');
+        expect( obj.amount ).toEqual(10.50);
+        expect( obj.currency ).toEqual('EUR');
+        
+        var obj = pars.parse('ho vinto €2.300 alla lotteria');
+        expect( obj.amount ).toEqual(2300);
+        expect( obj.currency ).toEqual('EUR');
+        
+        var obj = pars.parse('ho vinto €2.300,50 alla lotteria');
+        expect( obj.amount ).toEqual(2300.5);
+        expect( obj.currency ).toEqual('EUR');
     });
     
     it('extracts the price', function(){
