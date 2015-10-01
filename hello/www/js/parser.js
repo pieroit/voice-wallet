@@ -52,7 +52,7 @@ Parser.prototype = {
         if( amount ){
             
             if( amount.length === 1 ){
-                this.model.amount = amount[0];
+                this.model.rawAmount = amount[0];
             } else {
                 // there may be more numbers. Take the one with the nearest currency
                 var currencyPosition = this.sentence.indexOf( this.model.rawCurrency );
@@ -67,13 +67,14 @@ Parser.prototype = {
                     }
                 }
                 
-                this.model.amount = nearestAmount;
+                this.model.rawAmount = nearestAmount;
             }
+            
+            // convert to number
+            // taking away . from long numbers (1.000.000) and substituting , with . for real numbers
+            this.model.amount = parseFloat( this.model.rawAmount.replace('.', '').replace(',','.') );
         }
         
-        // convert to number
-        // taking away . from long numbers (1.000.000) and substituting , with . for real numbers
-        this.model.amount = parseFloat( this.model.amount.replace('.', '').replace(',','.') );
         return this.model.amount;
     },
     
@@ -85,7 +86,7 @@ Parser.prototype = {
 
         // amount
         this.parseAmount();
-        var amount = this.model.amount;
+        var amount = this.model.rawAmount;
         
         // allow the two in different order
         var currencyAmountRegex = VerEx().add(currency).maybe(' ').add(amount);
@@ -93,6 +94,7 @@ Parser.prototype = {
         
         var priceRegex = VerEx().then(currencyAmountRegex).or().then(amountCurrencyRegex);
         this.model.price = this.matchFirstResult( this.sentence, priceRegex );
+        
         return this.model.price;
     },
     

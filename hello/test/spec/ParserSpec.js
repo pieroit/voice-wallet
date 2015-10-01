@@ -59,7 +59,7 @@ describe('Parses simple expense sentences', function(){
         var obj = pars.parse( 'il 2 gennaio 2014 ho speso 10 € per il 4 cartoni di latte' );
         expect( obj.price ).toBe('10 €');
         
-        //TODO: decimal part of the price (could be made of words, e.g. 'speso 10€ e mezzo'). 
+        // TODO: numbers made of words, e.g. 'speso 10€ e mezzo'). 
     });
     
     it('extracts the category', function(){
@@ -81,5 +81,10 @@ describe('Parses simple expense sentences', function(){
         
         var obj = pars.parse( 'speso 10€ per il latte categoria spesa' );
         expect( obj.description ).toBe('speso per il latte');    
+        
+        // Substitutes raw price
+        var obj = pars.parse( '12,50 € per il latte' );
+        expect( obj.price ).toBe('12,50 €');
+        expect( obj.description ).toBe('per il latte');        
     });
 });
