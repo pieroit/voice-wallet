@@ -28,6 +28,7 @@
         <script type="text/javascript" src="js/database.js"></script>
         <script type="text/javascript" src="js/form.js"></script>
         <script type="text/javascript" src="js/app.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
         
         <title>Boink</title>
     </head>
@@ -71,8 +72,8 @@
                 <div class="fa fa-circle" id="spoken"> recording...</div>
                 
                 <span class="form-inline">
-                    <input id="form-import-polarity" type="hidden" value="1" >
-                    <input id="form-import" type="number" placeholder="import" >
+                    <input id="form-amount-polarity" type="hidden" value="1" >
+                    <input id="form-amount" type="number" placeholder="amount" >
                 </span>
 
                 <fieldset data-role="controlgroup" data-mini="true" data-type="horizontal">
@@ -206,79 +207,7 @@
             </div>
         </div>
         <!-- end options page -->
-        
-        <script>
-            
-            var recognition;
-            var parser;
-            
-            var deviceReadyDeferred = $.Deferred();
-            var jqmReadyDeferred = $.Deferred();
-            
-            if ( !!window.cordova ) {
-                console.log('we are on device');
-                $.when(deviceReadyDeferred, jqmReadyDeferred).done( appInit );
-            } else {
-                console.log('we are on desktop');
-                // TODO: make HTML5 speech recog work
-                var SpeechRecognition = webkitSpeechRecognition;
-                $.when(jqmReadyDeferred).done( appInit );
-            }
-            
-            $(document).ready( function () {
-                console.log('jQuery is ready');
-                jqmReadyDeferred.resolve();
-            });
-            
-            document.addEventListener('deviceReady', onDeviceReady, false);
-            function onDeviceReady() {
-                console.log('cordova is ready');
-                deviceReadyDeferred.resolve();
-            }	
-            
-            function appInit() {
-                
-                console.log('appInit fired', db);
-                
-                parser = new Parser();
 
-                recognition = new SpeechRecognition();
-                recognition.lang = 'it-IT';
-                recognition.onresult = function(event) {
-                    console.log('event', event);
-                    if (event.results.length > 0) {
-                        var voiceInput = event.results[0][0].transcript;
-                        
-                        // parse command
-                        var obj = parser.parse(voiceInput);
-                        obj.import = obj.amount;    // TODO: change parser to output import instead of amount
-                        
-                        // give visual feedback
-                        console.log(obj);
-                        $('#spoken').text(voiceInput);
-                        
-                        // update form
-                        precompileForm(obj);                        
-                    }
-                };
-                console.log('recognition', recognition);
-
-                $('#speak-green').on('click', function(){
-                    initForm(1);
-                    $.mobile.navigate('#form');
-                    recognition.start();                            
-                });
-
-                $('#speak-red').on('click', function(){
-                    initForm(-1);
-                    $.mobile.navigate('#form');
-                    recognition.start();                            
-                });
-                
-                initReport();
-            }
-        </script>
-        
     </body>
 </html>
 

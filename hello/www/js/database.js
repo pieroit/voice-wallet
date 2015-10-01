@@ -59,10 +59,10 @@ Database.prototype = {
         // Sanitize
         recordObj = validateRecord( recordObj );
         
-        var query = 'INSERT INTO transactions (id, time, import, currency, category, description, latitude, longitude) VALUES (';
+        var query = 'INSERT INTO transactions (id, time, amount, currency, category, description, latitude, longitude) VALUES (';
         query += recordObj.id;
         query += ', ' + recordObj.time;                 // time TODO: this could be set manually in the form... please check
-        query += ', ' + recordObj.import.toString();
+        query += ', ' + recordObj.amount.toString();
         query += ', "' + recordObj.currency + '"';
         query += ', "' + recordObj.category + '"';      
         query += ', "' + recordObj.description + '"';
@@ -79,9 +79,9 @@ Database.prototype = {
         
         // get expenses or incomes or both?
         if( queryObject.valence === 'expense' ) {
-            query += ' import < 0 AND';
+            query += ' amount < 0 AND';
         } else if(queryObject.valence === 'income' ) {
-            query += ' import > 0 AND';
+            query += ' amount > 0 AND';
         }
         query += ' time > ' + queryObject.start;
         query += ' AND time < ' + queryObject.end;
@@ -97,7 +97,7 @@ Database.prototype = {
         //cleanDB(tx);
 
         // Create tables
-        this.query('CREATE TABLE IF NOT EXISTS transactions (id INT PRIMARY KEY, time INTEGER, import REAL, currency TEXT, category TEXT, description TEXT, latitude REAL, longitude REAL)'); 
+        this.query('CREATE TABLE IF NOT EXISTS transactions (id INT PRIMARY KEY, time INTEGER, amount REAL, currency TEXT, category TEXT, description TEXT, latitude REAL, longitude REAL)'); 
         this.query('CREATE TABLE IF NOT EXISTS settings (name TEXT, value TEXT)');
     },
     
@@ -122,55 +122,55 @@ Database.prototype = {
         var dumpRecords = [
             {
                 time: moment('2014-12-30 10:30').unix(),
-                import: -300,
+                amount: -300,
                 category: 'spesa',
                 description: '...'
             },
             {
                 time: moment('2015-01-01 10:30').unix(),
-                import: -200,
+                amount: -200,
                 category: 'spesa',
                 description: '...'
             },
             {
                 time: moment('2015-01-01 18:30').unix(),
-                import: -20,
+                amount: -20,
                 category: 'spesa',
                 description: '...'
             },
             {
                 time: moment('2015-01-05 6:30').unix(),
-                import: -130,
+                amount: -130,
                 category: 'spesa',
                 description: '...'
             },
             {
                 time: moment('2015-01-07 10:30').unix(),
-                import: -3,
+                amount: -3,
                 category: 'trasporti',
                 description: '...'
             },
             {
                 time: moment('2015-01-07 10:30').unix(),
-                import: -25,
+                amount: -25,
                 category: 'trasporti',
                 description: '...'
             },
             {
                 time: moment('2015-01-23 10:30').unix(),
-                import: -30,
+                amount: -30,
                 category: 'bollette',
                 description: '...'
             },
             {
                 time: moment('2015-01-23 12:30').unix(),
-                import: 100,
+                amount: 100,
                 category: 'paghetta',
                 description: 'posso comprare sipiderman!'
             },
             {
                 time: moment('2015-02-24 10:30').unix(),
-                import: 1500,
+                amount: 1500,
                 category: 'stipendio',
                 description: '...'
             }
@@ -202,8 +202,8 @@ function validateRecord( record ) {
         record.currency = 'EUR';
     if( ! ('description' in record) )
         record.description = ' ';
-    if( ! ('import' in record) )
-        record.import = 0.0;
+    if( ! ('amount' in record) )
+        record.amount = 0.0;
     if( ! ('latitude' in record) )
         record.latitude = 0.0;
     if( ! ('longitude' in record) )

@@ -1,7 +1,6 @@
 var formMap;
 
 jQuery(document).ready( function($){
-    initForm(1);
     
     // Submit events
     $('#form-button-ok').on('click', saveFormData);
@@ -14,7 +13,7 @@ jQuery(document).ready( function($){
 function initForm(recordPolarity){
     
     // Set record polarity in the form
-    $('#form-import-polarity').val( recordPolarity );
+    $('#form-amount-polarity').val( recordPolarity );
     
     // init default values
     // TODO: date is american style... should be european
@@ -34,7 +33,7 @@ function initForm(recordPolarity){
     }
     
     // force tile redraw, otherwise they remain gray
-    formMap._onResize();
+    //formMap._onResize();
 }
 
 function precompileForm(obj) {
@@ -47,7 +46,7 @@ function precompileForm(obj) {
 
     // update form
     if( obj !== {} ) {
-        $("#form-import").val( obj.import );
+        $("#form-amount").val( obj.amount );
         $("[name='form-currency']:checked").val();  // not easy :|
         $('#form-description').val( obj.description );
         $('#form-category').val( obj.category );
@@ -60,8 +59,8 @@ function precompileForm(obj) {
 
 function saveFormData() {
     
-    var formImport = parseFloat( $('#form-import').val() );
-    formImport *= parseFloat( $('#form-import-polarity').val() );
+    var formAmount = parseFloat( $('#form-amount').val() );
+    formAmount *= parseFloat( $('#form-amount-polarity').val() );
     
     var formDate = $('#form-date').val();
     var formTime = $('#form-time').val();
@@ -69,7 +68,7 @@ function saveFormData() {
     console.log(formDate, formTime, formDateTime);
     
     var obj = {
-        import: formImport,
+        amount: formAmount,
         currency: $("[name='form-currency']:checked").val(),
         description: $('#form-description').val(),
         category: $('#form-category').val(),
@@ -83,9 +82,9 @@ function saveFormData() {
     // insert into db
     // TODO: this must be un UPSERT
     // TODO: time counter adn automatic save
-    insertRecord(obj);
-    
-    history.back();
+    db.upsertRecord(obj, function(){
+        history.back();
+    });
 }
 
 function cancelFormData() {

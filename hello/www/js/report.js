@@ -22,7 +22,6 @@ function setLatestReportQueryToControlPanel() {
     // TODO: there should be a db setting for this
     // TODO: check that this is executed at report init
     
-    
     // if not present in db, return default (or just put default in the DB)
     $('#time-span-button-start').data('time-span-start', moment().startOf('day').unix());
     $('#time-span-button-end').data('time-span-end', moment().endOf('day').unix());
@@ -126,11 +125,8 @@ function updateReport(event) {
 // Based on the reportQuery, retrieve data
 function getDataAndPopulateReport(reportQuery){
     
-    // TODO: resolve data thick issue:
-    // 3 - keep a copy of original queried data
-    
-    getRecords( reportQuery, function(tx, results){
-        
+    db.getRecords( reportQuery, function(tx, results){
+        console.log('GET RECS', results);
         var data = [];
 
         for(var i=0; i<results.rows.length; i++){
@@ -166,7 +162,7 @@ function updateReportList(data) {
         .enter()
         .insert('tr', 'svg')   // append before svg
         .style('color', function(d){
-            if(d.import > 0)
+            if(d.amount > 0)
                 return 'green';
             return 'red';
         })
@@ -196,11 +192,11 @@ function updateReportPie(data) {
     // group by category
     data = groupByKey(data, 'category');
     
-    // sum imports by category
+    // sum amounts by category
     for (var i=0; i<data.length; i++) {
         data[i].categorySum = 0;
         for (var v=0; v<data[i].values.length; v++) {
-            data[i].categorySum += data[i].values[v].import;
+            data[i].categorySum += data[i].values[v].amount;
         }
     }
 
@@ -252,32 +248,12 @@ function updateReportLine(data) {
     //console.log('result', data);
     
     data = fixTimeThicks(data);
-    
-    //console.log(data);
-    
-    /*data = [{ 
-      "key" : "spesa" , 
-      "values" : [
-        { time: 1025409600000 , import: 23.041422681023},
-        { time: 1028088000000 , import: 19.854291255832},
-        { time: 1038632400000 , import: 21.02286281168},
-        { time: 1038632600000 , import: 26.982389242348}
-      ]},
-        {
-        "key" : "trasporti", 
-      "values" : [
-        { time: 1025409600000 , import: 22.093608385173},
-        { time: 1028088000000 , import: 25.108079299458},
-        { time: 1038632400000 , import: 26.982389242348},
-        { time: 1038632600000 , import: 26.982389242348}
-      ]
-    }];*/
                   
     nv.addGraph(function() {
         var chart = nv.models.stackedAreaChart()
                   .margin({right: 50})
                   .x(function(d) { return d.discretedTime })
-                  .y(function(d) { return Math.abs(d.import) })
+                  .y(function(d) { return Math.abs(d.amount) })
                   //.useInteractiveGuideline(true)    //Tooltips which show all data points. Very nice!
                   //.transitionDuration(500)
                   //.showControls(true)       //Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.
@@ -355,18 +331,18 @@ function fixTimeThicks(data) {
             if( !(timeThick in timeThicksSum) ){
                 timeThicksSum[timeThick] = 0.0;
             }
-            timeThicksSum[timeThick] += data[i].values[j].import;
+            timeThicksSum[timeThick] += data[i].values[j].amount;
         } 
         
         // Add a sum value for each time thick
         for(var t=0; t<timeThicks.length; t++){ 
-            var importSum = 0.0;
+            var amountSum = 0.0;
             if( timeThicks[t] in timeThicksSum ){
-                importSum += timeThicksSum[timeThicks[t]]; 
+                amountSum += timeThicksSum[timeThicks[t]]; 
             }
             
             categoryObj.values.push({
-                import: importSum,
+                amount: amountSum,
                 discretedTime: timeThicks[t]
             });
         }

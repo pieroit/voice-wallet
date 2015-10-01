@@ -3,10 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/piero/Desktop/progetti/cordovaHello/hello/test/SpecRunner.html</file>
             <file>file:/home/piero/Desktop/progetti/cordovaHello/hello/www/js/parser.js</file>
-            <file>file:/home/piero/Desktop/progetti/cordovaHello/hello/www/js/form.js</file>
-            <file>file:/home/piero/Desktop/progetti/cordovaHello/hello/www/index.html</file>
+            <file>file:/home/piero/Desktop/progetti/cordovaHello/hello/test/spec/DatabaseSpec.js</file>
+            <file>file:/home/piero/Desktop/progetti/cordovaHello/hello/www/js/database.js</file>
         </group>
     </open-files>
 </project-private>

@@ -2,7 +2,7 @@
 
 // TODO: 1,50 €
 // TODO: 1.000.000 €
-// currency canonical form
+// TODO: currency canonical form
 
 var Parser = function(){
     this.availableCurrencies = ['€','euro','euros', '$','dollar','dollars']; // TODO: lista in tutte le lingue e con i valori canonical

@@ -1,51 +1,69 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-    // Application Constructor
-    initialize: function() {
-        this.bindEvents();
-    },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
-    bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-    },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicitly call 'app.receivedEvent(...);'
-    onDeviceReady: function() {
-        app.receivedEvent('deviceready');
-    },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+var recognition;
+var parser;
+var db;
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+var deviceReadyDeferred = $.Deferred();
+var jqmReadyDeferred = $.Deferred();
 
-        console.log('Received Event: ' + id);
-    }
-};
+if ( !!window.cordova ) {
+    console.log('we are on device');
+    $.when(deviceReadyDeferred, jqmReadyDeferred).done( appInit );
+} else {
+    console.log('we are on desktop');
+    // TODO: make HTML5 speech recog work
+    var SpeechRecognition = webkitSpeechRecognition;
+    $.when(jqmReadyDeferred).done( appInit );
+}
 
-app.initialize();
+$(document).ready( function () {
+    console.log('jQuery is ready');
+    jqmReadyDeferred.resolve();
+});
+
+document.addEventListener('deviceReady', onDeviceReady, false);
+function onDeviceReady() {
+    console.log('cordova is ready');
+    deviceReadyDeferred.resolve();
+}	
+
+function appInit() {
+
+    console.log('appInit fired');
+
+    db = new Database();
+
+    parser = new Parser();
+
+    recognition = new SpeechRecognition();
+    recognition.lang = 'it-IT';
+    recognition.onresult = function(event) {
+        //console.log('speech event', event);
+        if (event.results.length > 0) {
+            var voiceInput = event.results[0][0].transcript;
+
+            // parse command
+            var obj = parser.parse(voiceInput);
+
+            // give visual feedback
+            //console.log(obj);
+            $('#spoken').text(voiceInput);
+
+            // update form
+            precompileForm(obj);                        
+        }
+    };
+    
+    initReport();
+
+    $('#speak-green').on('click', function(){
+        initForm(1);
+        $.mobile.navigate('#form');
+        recognition.start();                            
+    });
+
+    $('#speak-red').on('click', function(){
+        initForm(-1);
+        $.mobile.navigate('#form');
+        recognition.start();                            
+    });
+}
