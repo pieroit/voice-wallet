@@ -80,8 +80,7 @@ function saveFormData() {
     console.log(obj);
     
     // insert into db
-    // TODO: this must be un UPSERT
-    // TODO: time counter adn automatic save
+    // TODO: time counter and automatic save?
     db.upsertRecord(obj, function(){
         history.back();
     });

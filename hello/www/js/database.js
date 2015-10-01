@@ -52,16 +52,38 @@ Database.prototype = {
         }
     },
     
+    sanitizeRecord: function(record) {
+        if( !record) {
+            record = {};
+        }
+        if( ! ('id' in record) )
+            record.id = parseInt( Math.random()*1000000000, 10 );   // enough to be non-repeated?
+        if( ! ('time' in record) )
+            record.time = moment().unix();
+        if( ! ('currency' in record) )
+            record.currency = 'EUR';
+        if( ! ('description' in record) )
+            record.description = ' ';
+        if( ! ('amount' in record) )
+            record.amount = 0.0;
+        if( ! ('latitude' in record) )
+            record.latitude = 0.0;
+        if( ! ('longitude' in record) )
+            record.longitude = 0.0; 
+            console.log(record);
+        return record;
+    },
+    
     // Upsert record
     // TODO: there is only insert right now
     upsertRecord: function(recordObj, callback){
         
         // Sanitize
-        recordObj = validateRecord( recordObj );
+        recordObj = this.sanitizeRecord( recordObj );
         
         var query = 'INSERT INTO transactions (id, time, amount, currency, category, description, latitude, longitude) VALUES (';
         query += recordObj.id;
-        query += ', ' + recordObj.time;                 // time TODO: this could be set manually in the form... please check
+        query += ', ' + recordObj.time;
         query += ', ' + recordObj.amount.toString();
         query += ', "' + recordObj.currency + '"';
         query += ', "' + recordObj.category + '"';      
@@ -188,26 +210,3 @@ Database.prototype = {
     },
     
 };
-
-
-function validateRecord( record ) {
-    if( !record) {
-        record = {};
-    }
-    if( ! ('id' in record) )
-        record.id = parseInt( Math.random()*1000000000, 10 );   // enough to be non-repeated?
-    if( ! ('time' in record) )
-        record.time = moment().unix();
-    if( ! ('currency' in record) )
-        record.currency = 'EUR';
-    if( ! ('description' in record) )
-        record.description = ' ';
-    if( ! ('amount' in record) )
-        record.amount = 0.0;
-    if( ! ('latitude' in record) )
-        record.latitude = 0.0;
-    if( ! ('longitude' in record) )
-        record.longitude = 0.0; 
-        console.log(record);
-    return record;
-}

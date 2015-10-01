@@ -153,6 +153,7 @@ function updateSpecificReport(type, data) {
 
 function updateReportList(data) {
     
+    // TODO: edit and delete list items
     
     $('#report-div').show();
     
