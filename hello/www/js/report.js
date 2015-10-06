@@ -116,7 +116,7 @@ function updateReport(event) {
     var titleTo = moment.unix(reportQ.end).format('YY MM DD HH:mm');
     var verbalTimeSpanFormat = $("[name='radio-span']:checked").data('verbal-format');
     var humanReadableTimespan = moment.unix(reportQ.end).format(verbalTimeSpanFormat);
-    $('#report-title').html( titleFrom + '</br>' + humanReadableTimespan + '</br>' + titleTo );
+    $('#report-title').html( /*titleFrom + '</br>' +*/ humanReadableTimespan /*+ '</br>' + titleTo*/ );
 
     // query data and update report
     getDataAndPopulateReport(reportQ);

@@ -29,6 +29,8 @@ function onDeviceReady() {
 function appInit() {
 
     console.log('appInit fired');
+    
+    moment.locale('en');
 
     db = new Database();
 
