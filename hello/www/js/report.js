@@ -8,8 +8,10 @@ function initReport(){
 
     svg = d3.select('svg');
     
+    // events
     $('#dashboard-controls').on('change', updateReport );
     $('#time-span-buttons').on('click', updateReport );
+    
     
     // retrieve last query from DB and configure the panel
     setLatestReportQueryToControlPanel();
@@ -19,18 +21,34 @@ function initReport(){
 
 function setLatestReportQueryToControlPanel() {
     
-    // TODO: there should be a db setting for this
-    // TODO: check that this is executed at report init
+    console.log('settinge default report');
+    // TODO: load from DB
     
-    // if not present in db, return default (or just put default in the DB)
-    $('#time-span-button-start').data('time-span-start', moment().startOf('day').unix());
-    $('#time-span-button-end').data('time-span-end', moment().endOf('day').unix());
-    return {
-        'type': 'pie',
-        'start': moment().startOf('day').unix(),
-        'end': moment().startOf('day').unix(),
-        'valence': 'expense'
-    };  
+    // if not present in db, return default
+    $('#time-span-button-start').data('time-span-start', moment().startOf('week').unix());
+    $('#time-span-button-end').data('time-span-end', moment().endOf('week').unix()); 
+}
+
+// each event in the control panel should fire a redraw
+function updateReport(event) {
+    
+    cleanReport();
+    
+    // If the arrows where clicked, than update the arrows' timestamp
+    updateTimeSpan(event);
+    
+    // extract report query from the DOM
+    var reportQ = getReportQueryFromControlPanel();
+    
+    // write time span in human readable way
+    var titleFrom = moment.unix(reportQ.start).format('YY MM DD HH:mm');
+    var titleTo = moment.unix(reportQ.end).format('YY MM DD HH:mm');
+    var verbalTimeSpanFormat = $("[name='radio-span']:checked").data('verbal-format');
+    var humanReadableTimespan = moment.unix(reportQ.end).format(verbalTimeSpanFormat);
+    $('#report-title').html( /*titleFrom + '</br>' +*/ humanReadableTimespan /*+ '</br>' + titleTo*/ );
+
+    // query data and update report
+    getDataAndPopulateReport(reportQ);
 }
 
 // extract query from the panel and save it into db before return it
@@ -100,28 +118,6 @@ function updateTimeSpan(event) {
     }
 }
 
-// each event in the control panel should fire a redraw
-function updateReport(event) {
-    
-    cleanReport();
-    
-    // If the arrows where clicked, than update the arrows' timestamp
-    updateTimeSpan(event);
-    
-    // extract report query from the DOM
-    var reportQ = getReportQueryFromControlPanel();
-    
-    // write time span in human readable way
-    var titleFrom = moment.unix(reportQ.start).format('YY MM DD HH:mm');
-    var titleTo = moment.unix(reportQ.end).format('YY MM DD HH:mm');
-    var verbalTimeSpanFormat = $("[name='radio-span']:checked").data('verbal-format');
-    var humanReadableTimespan = moment.unix(reportQ.end).format(verbalTimeSpanFormat);
-    $('#report-title').html( /*titleFrom + '</br>' +*/ humanReadableTimespan /*+ '</br>' + titleTo*/ );
-
-    // query data and update report
-    getDataAndPopulateReport(reportQ);
-}
-
 // Based on the reportQuery, retrieve data
 function getDataAndPopulateReport(reportQuery){
     
@@ -153,8 +149,6 @@ function updateSpecificReport(type, data) {
 
 function updateReportList(data) {
     
-    // TODO: edit and delete list items
-    
     $('#report-div').show();
     
     d3.select('#report-div')
@@ -168,7 +162,7 @@ function updateReportList(data) {
             return 'red';
         })
         .html( function(d, i){
-            var text = '';
+            var text = '<td class="report-edit fa fa-edit" data-id="' + d.id + '"></td>';
             
             for(var prop in d) {
                 if( prop !== 'id' && prop !== 'longitude' && prop !== 'latitude' ){
@@ -183,7 +177,24 @@ function updateReportList(data) {
             
             return text;
         });
-    
+      
+    // click on the edit icon
+    $('.report-edit').on('click', function(event){
+        var recordId = $(event.target).data('id');
+        // get record and precompile form
+        db.getRecords({id: recordId}, function(tx, res){
+            console.log(res);
+            var record = res.rows.item(0);
+            if(record.amount > 0){
+                initForm(1);
+            } else {
+                initForm(-1);
+            }
+            record.amount = Math.abs( record.amount );
+            precompileForm( record );
+            $.mobile.navigate('#form');
+        });
+    });
 }
 
 function updateReportPie(data) {

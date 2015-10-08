@@ -6,9 +6,34 @@ var Database = function(){
     
     // Create tables if they don't exist yet
     this.createDB();
+    
+    //this.populateDB();
 }
 
 Database.prototype = {
+    
+    createDB: function(){
+            
+        // Delete tables...
+        //cleanDB(tx);
+
+        // Create tables
+        this.query('CREATE TABLE IF NOT EXISTS transactions (id INT PRIMARY KEY, time INTEGER, amount REAL, currency TEXT, category TEXT, description TEXT, latitude REAL, longitude REAL)'); 
+        this.query('CREATE TABLE IF NOT EXISTS settings (name TEXT PRIMARY KEY, value TEXT)');
+        
+        // Insert default settings
+        this.updateSettings([
+            {
+                name: 'language',
+                value: 'it-IT'
+            },
+            {
+                name: 'last_report_query',
+                value: {}
+            }
+        ]);
+        
+    },
     
     // Execute SQL
     query: function(queryString, callback){
@@ -26,30 +51,14 @@ Database.prototype = {
     
     // Transaction error callback
     errorCallback: function(tx, err) {
-        if (err.code == "0") {
-            console.error("0 - UNKNOWN_ERR: The transaction failed for reasons unrelated to the database itself and not covered by any other error code.");
-        }
-        if (err.code == "1") {
-            console.error("1 - DATABASE_ERR: The statement failed for database reasons not covered by any other error code.");
-        }
-        if (err.code == "2") {
-            console.error("2 - VERSION_ERR: The operation failed because the actual database version was not what it should be. For example, a statement found that the actual database version no longer matched the expected version of the Database or DatabaseSync object, or the Database.changeVersion() or DatabaseSync.changeVersion() methods were passed a version that doesn't match the actual database version.");
-        }
-        if (err.code == "3") {
-            console.error("3 - TOO_LARGE_ERR: The statement failed because the data returned from the database was too large. The SQL 'LIMIT' modifier might be useful to reduce the size of the result set.");
-        }
-        if (err.code == "4") {
-            console.error("4 - QUOTA_ERR: The statement failed because there was not enough remaining storage space, or the storage quota was reached and the user declined to give more space to the database.");
-        }
-        if (err.code == "5") {
-            console.error("5 - SYNTAX_ERR: The statement failed because of a syntax error, or the number of arguments did not match the number of ? placeholders in the statement, or the statement tried to use a statement that is not allowed, such as BEGIN, COMMIT, or ROLLBACK, or the statement tried to use a verb that could modify the database but the transaction was read-only.");
-        }
-        if (err.code == "6") {
-            console.error("6 - CONSTRAINT_ERR: An INSERT, UPDATE, or REPLACE statement failed due to a constraint failure. For example, because a row was being inserted and the value given for the primary key column duplicated the value of an existing row.");
-        }
-        if (err.code == "7") {
-            console.error("7 - TIMEOUT_ERR: A lock for the transaction could not be obtained in a reasonable time.");
-        }
+        if (err.code == "0") { console.error("0 - UNKNOWN_ERR: The transaction failed for reasons unrelated to the database itself and not covered by any other error code."); }
+        if (err.code == "1") { console.error("1 - DATABASE_ERR: The statement failed for database reasons not covered by any other error code."); }
+        if (err.code == "2") { console.error("2 - VERSION_ERR: The operation failed because the actual database version was not what it should be. For example, a statement found that the actual database version no longer matched the expected version of the Database or DatabaseSync object, or the Database.changeVersion() or DatabaseSync.changeVersion() methods were passed a version that doesn't match the actual database version."); }
+        if (err.code == "3") { console.error("3 - TOO_LARGE_ERR: The statement failed because the data returned from the database was too large. The SQL 'LIMIT' modifier might be useful to reduce the size of the result set."); }
+        if (err.code == "4") { console.error("4 - QUOTA_ERR: The statement failed because there was not enough remaining storage space, or the storage quota was reached and the user declined to give more space to the database."); }
+        if (err.code == "5") { console.error("5 - SYNTAX_ERR: The statement failed because of a syntax error, or the number of arguments did not match the number of ? placeholders in the statement, or the statement tried to use a statement that is not allowed, such as BEGIN, COMMIT, or ROLLBACK, or the statement tried to use a verb that could modify the database but the transaction was read-only."); }
+        if (err.code == "6") { console.error("6 - CONSTRAINT_ERR: An INSERT, UPDATE, or REPLACE statement failed due to a constraint failure. For example, because a row was being inserted and the value given for the primary key column duplicated the value of an existing row."); }
+        if (err.code == "7") { console.error("7 - TIMEOUT_ERR: A lock for the transaction could not be obtained in a reasonable time."); }
     },
     
     sanitizeRecord: function(record) {
@@ -73,8 +82,8 @@ Database.prototype = {
         return record;
     },
     
-    deleteRecord: function(id){
-        this.query('DELETE FROM transactions WHERE id=' + id);
+    deleteRecord: function(id, callback){
+        this.query('DELETE FROM transactions WHERE id=' + id, callback);
     },
     
     // Upsert record
@@ -99,30 +108,37 @@ Database.prototype = {
     
     getRecords: function(queryObject, callback){
         
-        var query = 'SELECT * FROM transactions WHERE';
+        var query = 'SELECT * FROM transactions';
+        
+        if(queryObject){
+            query += ' WHERE';
+        } else {
+            queryObject = {};
+        }
+        
+        // get specific id
+        if( queryObject.id ) {
+            query += ' id = ' + queryObject.id;
+        }
         
         // get expenses or incomes or both?
-        if( queryObject.valence === 'expense' ) {
-            query += ' amount < 0 AND';
-        } else if(queryObject.valence === 'income' ) {
-            query += ' amount > 0 AND';
+        if( queryObject.valence ) {
+            if( queryObject.valence === 'expense' ) {
+                query += ' amount < 0 AND';
+            } else if(queryObject.valence === 'income' ) {
+                query += ' amount > 0 AND';
+            }
         }
-        query += ' time > ' + queryObject.start;
-        query += ' AND time < ' + queryObject.end;
+        
+        // time span
+        if( queryObject.start && queryObject.end ) {
+            query += ' time > ' + queryObject.start;
+            query += ' AND time < ' + queryObject.end;
+        }
         
         query += ' ORDER BY time DESC';
-        
+console.log(query);
         this.query(query, callback);
-    },
-    
-    createDB: function(){
-            
-        // Delete tables...
-        //cleanDB(tx);
-
-        // Create tables
-        this.query('CREATE TABLE IF NOT EXISTS transactions (id INT PRIMARY KEY, time INTEGER, amount REAL, currency TEXT, category TEXT, description TEXT, latitude REAL, longitude REAL)'); 
-        this.query('CREATE TABLE IF NOT EXISTS settings (name TEXT, value TEXT)');
     },
     
     // Drop all tables
@@ -203,12 +219,29 @@ Database.prototype = {
         for(var i in dumpRecords){
             this.upsertRecord( dumpRecords[i] );
         }
+    },
+    
+    getSettings: function(callback){
+        var query = 'SELECT * FROM settings';        
+        this.query(query, callback);
+    },
+    
+    updateSettings: function(settings, callback){
         
-        this.query('INSERT INTO settings (name, value) VALUES ("language", "it")');
-        this.query('INSERT INTO settings (name, value) VALUES ("share_data", "yes")');
+        var query = 'INSERT OR REPLACE INTO settings (name, value) VALUES ';
+        for(var i in settings){
+            
+            var key = settings[i]['name'];
+            var value = settings[i]['value'];
+            
+            if( typeof(value) === 'object' ){
+                value = escape( JSON.stringify(value) );
+            }            
+            query += '("' + key + '", "' + value + '"),';
+        }
+        query = query.slice(0, -1); // take away last comma
 
-        // TODO: add this feature
-        this.query('INSERT INTO settings (name, value) VALUES ("last_report_query", "stringifiedJSON")');
+        this.query(query, callback);
     },
     
 };

@@ -12,6 +12,11 @@ jQuery(document).ready( function($){
 // This function must be able to create and modify any record
 function initForm(recordPolarity){
     
+    $("#form-id").val(null);
+    $("#form-amount").val(null);
+    $('#form-description').val(null);
+    $('#form-category').val(null);
+    
     // Set record polarity in the form
     $('#form-amount-polarity').val( recordPolarity );
     
@@ -38,6 +43,8 @@ function initForm(recordPolarity){
 
 function precompileForm(obj) {
     
+    console.log('precompiling form', obj);
+    
     if( !obj.time ){
         obj.time = moment().unix();
     }
@@ -46,6 +53,7 @@ function precompileForm(obj) {
 
     // update form
     if( obj !== {} ) {
+        $("#form-id").val( obj.id );
         $("#form-amount").val( obj.amount );
         $("[name='form-currency']:checked").val();  // not easy :|
         $('#form-description').val( obj.description );
@@ -59,15 +67,17 @@ function precompileForm(obj) {
 
 function saveFormData() {
     
+    var formId = parseFloat( $('#form-id').val() );
+    
     var formAmount = parseFloat( $('#form-amount').val() );
     formAmount *= parseFloat( $('#form-amount-polarity').val() );
     
     var formDate = $('#form-date').val();
     var formTime = $('#form-time').val();
     var formDateTime = moment(formDate + 'T' + formTime);
-    console.log(formDate, formTime, formDateTime);
     
     var obj = {
+        id: formId,
         amount: formAmount,
         currency: $("[name='form-currency']:checked").val(),
         description: $('#form-description').val(),
@@ -77,26 +87,30 @@ function saveFormData() {
         longitude : 0 // TODO
     };
     
-    console.log(obj);
+    console.log('saving', obj);
     
     // insert into db
-    // TODO: time counter and automatic save?
     db.upsertRecord(obj, function(){
+        updateReport();
         history.back();
     });
 }
 
 function cancelFormData() {
     
-    // TODO: clean form from data
+    updateReport();
     
-    //$.mobile.navigate('#home');
     history.back();
 }
 
+// Will delete record present in form
 function deleteFormData() {
-    //$.mobile.navigate('#home');
-    // TODO: should delete record
+    
+    var id = $("#form-id").val();
+    console.error('delete',id);
+    if(id){
+        db.deleteRecord(id);
+    }
     
     cancelFormData();
 }

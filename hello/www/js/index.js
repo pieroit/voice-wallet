@@ -1,6 +1,7 @@
 var recognition;
 var parser;
 var db;
+var settings = {};
 
 var deviceReadyDeferred = $.Deferred();
 var jqmReadyDeferred = $.Deferred();
@@ -29,40 +30,57 @@ function onDeviceReady() {
 function appInit() {
 
     console.log('appInit fired');
-    
-    moment.locale('en');
 
     db = new Database();
-
-    parser = new Parser();
-
-    recognition = new SpeechRecognition();
-    recognition.lang = 'it-IT';
-    recognition.onresult = function(event) {
-        //console.log('speech event', event);
-        if (event.results.length > 0) {
-            var voiceInput = event.results[0][0].transcript;
-
-            // parse command
-            var obj = parser.parse(voiceInput);
-
-            // give visual feedback
-            //console.log(obj);
-            $('#spoken').text(voiceInput);
-
-            // update form
-            precompileForm(obj);                        
+    // TODO: improve this behaviour
+    db.getSettings( function(tx, res){
+        
+        for( var i=0; i<res.rows.length; i++ ){
+            var item = res.rows.item(i);
+            var key = item.name;
+            var value = item.value;
+            settings[ key ] = value;
         }
-    };
-    
-    initReport();
+        settings['last_report_query'] = JSON.parse( unescape( settings['last_report_query'] ) );
+        
+        // Set up language
+        /*navigator.globalization.getLocaleName(
+            function (locale) {alert('locale: ' + locale.value + '\n');},
+            function () {alert('Error getting locale\n');}
+        );*/
+        moment.locale('en');
 
+        parser = new Parser();
+
+        recognition = new SpeechRecognition();
+        recognition.lang = 'it-IT'; // TODO: set the correct language
+        recognition.onresult = function(event) {
+            //console.log('speech event', event);
+            if (event.results.length > 0) {
+                var voiceInput = event.results[0][0].transcript;
+
+                // parse command
+                var obj = parser.parse(voiceInput);
+
+                // give visual feedback
+                //console.log(obj);
+                $('#spoken').text(voiceInput);
+
+                // update form
+                precompileForm(obj);                        
+            }
+        };
+
+        initReport();
+    });
+
+
+    // events for the home buttons
     $('#speak-green').on('click', function(){
         initForm(1);
         $.mobile.navigate('#form');
         recognition.start();                            
     });
-
     $('#speak-red').on('click', function(){
         initForm(-1);
         $.mobile.navigate('#form');

@@ -5,10 +5,11 @@
 var Parser = function(){
     this.canonicalCurrencies = {
         'EUR': ['€','euro','euros'],
-        'USD': ['$','dollar','dollars']
+        'USD': ['$','dollar','dollars','dollaro','dollari']
     };
     this.availableCurrencies = this.concatenateCurrencies();
-    this.availableCategoryLemmas = ['category', 'categoria'];   // TODO: tutte le lingue
+    this.availableCategoryLemmas = ['category', 'categoria', 'categorìa',
+                                    'catégorie', 'kategori', 'kategoria' ];
     this.sentence = '';
     this.model = {};
 };
