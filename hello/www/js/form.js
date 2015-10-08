@@ -67,8 +67,6 @@ function precompileForm(obj) {
 
 function saveFormData() {
     
-    var formId = parseFloat( $('#form-id').val() );
-    
     var formAmount = parseFloat( $('#form-amount').val() );
     formAmount *= parseFloat( $('#form-amount-polarity').val() );
     
@@ -77,7 +75,6 @@ function saveFormData() {
     var formDateTime = moment(formDate + 'T' + formTime);
     
     var obj = {
-        id: formId,
         amount: formAmount,
         currency: $("[name='form-currency']:checked").val(),
         description: $('#form-description').val(),
@@ -87,6 +84,12 @@ function saveFormData() {
         longitude : 0 // TODO
     };
     
+    // important! add record id for upsert
+    var formId = parseFloat( $('#form-id').val() );
+    if(formId){
+        obj.id = formId;
+    }
+        
     console.log('saving', obj);
     
     // insert into db
