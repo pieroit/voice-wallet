@@ -163,7 +163,7 @@ function updateReportList(data) {
             return 'red';
         })
         .html( function(d, i){
-            var text = '<td class="report-edit fa fa-edit" data-id="' + d.id + '"></td>';
+            var text = '<td><span class="report-edit fa fa-edit" data-id="' + d.id + '"></span></td>';
             
             for(var prop in d) {
                 if( prop !== 'id' && prop !== 'longitude' && prop !== 'latitude' ){
