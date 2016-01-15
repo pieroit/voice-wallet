@@ -90,7 +90,7 @@
                 <span id="form-block-time">
                     <input id="form-time" type="time">
                 </span>
-                <div id="form-map"></div>
+                <!-- <div id="form-map"></div> -->
                 <div>
                     <a class="fa fa-floppy-o" id="form-button-ok" data-role="button" data-inline="true">Save</a>
                     <a class="fa fa-trash-o"id="form-button-delete" data-role="button" data-inline="true">Delete</a>
@@ -131,32 +131,32 @@
                         <input type="radio" name="radio-type" id="radio-type-line" value="line"  />
                         <label class="fa fa-area-chart" for="radio-type-line"></label>
 
-                        <input type="radio" name="radio-type" id="radio-type-map" value="map" />
-                        <label class="fa fa-map-marker" for="radio-type-map"></label>
+                        <!-- <input type="radio" name="radio-type" id="radio-type-map" value="map" />
+                        <label class="fa fa-map-marker" for="radio-type-map"></label> -->
                     </fieldset>
 
                     <fieldset data-role="controlgroup" id="span-control">
                         <legend>Time span</legend>
                         <input type="radio" name="radio-span" id="radio-span-day" data-verbal-span="day" data-verbal-format="DD MMM YYYY" checked="checked" />
-                        <label for="radio-span-day">Day</label>
+                        <label for="radio-span-day">Hour</label>
 
                         <input type="radio" name="radio-span" id="radio-span-week" data-verbal-span="week" data-verbal-format="wo [week -] MMM YYYY" />
-                        <label for="radio-span-week">Week</label>
+                        <label for="radio-span-week">Day</label>
 
                         <input type="radio" name="radio-span" id="radio-span-month" data-verbal-span="month"  data-verbal-format="MMM YYYY"/>
-                        <label for="radio-span-month">Month</label>
+                        <label for="radio-span-month">Week</label>
 
                         <input type="radio" name="radio-span" id="radio-span-year" data-verbal-span="year" data-verbal-format="YYYY" />
-                        <label for="radio-span-year">Year</label>
+                        <label for="radio-span-year">Month</label>
                     </fieldset>
 
                     <fieldset data-role="controlgroup" id="valence-control">
                         <legend>Valence</legend>
 
-                        <input type="radio" name="radio-valence" id="radio-valence-expense" value="expense" checked="checked" />
+                        <input type="radio" name="radio-valence" id="radio-valence-expense" value="expense" />
                         <label  class="fa fa-frown-o" for="radio-valence-expense"></label>
 
-                        <input type="radio" name="radio-valence" id="radio-valence-balance" value="balance"  />
+                        <input type="radio" name="radio-valence" id="radio-valence-balance" value="balance" checked="checked" />
                         <label class="fa fa-meh-o" for="radio-valence-balance"></label>
 
                         <input type="radio" name="radio-valence" id="radio-valence-income" value="income"  />

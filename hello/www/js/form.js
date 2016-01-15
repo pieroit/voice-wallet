@@ -25,6 +25,7 @@ function initForm(recordPolarity){
     $('#form-date').val( moment().format('YYYY-MM-DD') );
     $('#form-time').val( moment().format('HH:mm') );
     
+    /*
     // TODO: get current location or latest location
     if(!formMap) {
         formMap = L.map('form-map').setView([51, 0], 14);
@@ -36,9 +37,9 @@ function initForm(recordPolarity){
             }
         ).addTo(formMap);
     }
-    
     // force tile redraw, otherwise they remain gray
-    //formMap._onResize();
+    formMap._onResize();
+    */
 }
 
 function precompileForm(obj) {

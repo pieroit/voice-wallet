@@ -12,7 +12,6 @@ function initReport(){
     $('#dashboard-controls').on('change', updateReport );
     $('#time-span-buttons').on('click', updateReport );
     
-    
     // retrieve last query from DB and configure the panel
     setLatestReportQueryToControlPanel();
     
@@ -70,8 +69,10 @@ function cleanReport() {
     // delete actual report contents and put on a loading gif
     $('#map-div').hide();
     $('#report-div').empty().hide();
+    $('.nvtooltip').remove();
     svg.selectAll('*').remove();
     svg.style('display', 'none');
+
     // TODO: loading gif, a nice one
 }
 

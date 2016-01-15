@@ -1,3 +1,22 @@
+/*******************/
+/****** HOME *******/
+/*******************/
+
+#logo {
+    width: 20%;
+    height: auto;
+}
+
+#quote {
+    width: 75%;
+    float: right;
+    padding-top: 10px;
+}
+
+#navmenu a {
+    font-size: 20px;
+}
+
 #speak-green, #speak-red {
     font-size: 50px;
     color: lightgray;
@@ -10,12 +29,9 @@
     background-color: red;
 }
 
-#spoken {
-    width: 100%;
-    color: red;
-    font-size: 20px;
-    margin-bottom: 10px;
-}
+/*******************/
+/****** REPORT *****/
+/*******************/
 
 #time-span-button-end {
     float: right;
@@ -64,6 +80,15 @@
     background-color: #eee;
 }
 
+/*******************/
+/****** FORM *******/
+/*******************/
+#spoken {
+    width: 100%;
+    color: red;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
 
 #form input, #form textarea {
     font-size: 17px;
@@ -94,21 +119,4 @@
     width: 40%;
     float: right;
     padding: 0px;
-}
-
-
-
-#logo {
-    width: 20%;
-    height: auto;
-}
-
-#quote {
-    width: 75%;
-    float: right;
-    padding-top: 10px;
-}
-
-#navmenu a {
-    font-size: 20px;
 }
