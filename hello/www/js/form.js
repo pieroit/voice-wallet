@@ -53,6 +53,7 @@ function precompileForm(obj) {
     var objTime = moment.unix( obj.time ).format('HH:mm');
 
     // update form
+    $('#form-status').text(' editing ...');
     if( obj !== {} ) {
         $("#form-id").val( obj.id );
         $("#form-amount").val( obj.amount );
@@ -74,6 +75,10 @@ function saveFormData() {
     var formDate = $('#form-date').val();
     var formTime = $('#form-time').val();
     var formDateTime = moment(formDate + 'T' + formTime);
+    
+    if( ! $('#form-category').val() ) {
+        $('#form-category').val('no category')
+    }
     
     var obj = {
         amount: formAmount,

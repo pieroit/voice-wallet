@@ -269,7 +269,7 @@ function updateReportLine(data) {
                   .y(function(d) { return Math.abs(d.amount) })
                   //.useInteractiveGuideline(true)    //Tooltips which show all data points. Very nice!
                   //.transitionDuration(500)
-                  //.showControls(true)       //Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.
+                  .showControls(false)       //Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.
                   .clipEdge(true);
 
         //Format x-axis labels with custom function.

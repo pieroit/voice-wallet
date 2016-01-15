@@ -29,6 +29,49 @@
     background-color: red;
 }
 
+
+/*******************/
+/****** FORM *******/
+/*******************/
+#form-status {
+    width: 100%;
+    color: red;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#form input, #form textarea {
+    font-size: 17px;
+}
+
+#form-map {
+    width: 100%;
+    height: 300px;
+}
+
+#form-block-amount {
+    display: inline-block;
+    width: 70%;
+}
+
+#form-block-currency {
+    display: inline-block;
+    float: right;
+}
+
+#form-block-date {
+    display: inline-block;
+    width: 50%;
+}
+
+#form-block-time {
+    display: inline-block;
+    width: 40%;
+    float: right;
+    padding: 0px;
+}
+
+
 /*******************/
 /****** REPORT *****/
 /*******************/
@@ -80,43 +123,9 @@
     background-color: #eee;
 }
 
-/*******************/
-/****** FORM *******/
-/*******************/
-#spoken {
-    width: 100%;
+label.fa-frown-o.ui-btn {
     color: red;
-    font-size: 20px;
-    margin-bottom: 10px;
 }
-
-#form input, #form textarea {
-    font-size: 17px;
-}
-
-#form-map {
-    width: 100%;
-    height: 300px;
-}
-
-#form-block-amount {
-    display: inline-block;
-    width: 70%;
-}
-
-#form-block-currency {
-    display: inline-block;
-    float: right;
-}
-
-#form-block-date {
-    display: inline-block;
-    width: 50%;
-}
-
-#form-block-time {
-    display: inline-block;
-    width: 40%;
-    float: right;
-    padding: 0px;
+label.fa-smile-o.ui-btn {
+    color: green;
 }

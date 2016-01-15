@@ -62,12 +62,12 @@ function appInit() {
                 // parse command
                 var obj = parser.parse(voiceInput);
 
+                // update form
+                precompileForm(obj);
+                
                 // give visual feedback
                 //console.log(obj);
-                $('#spoken').text(voiceInput);
-
-                // update form
-                precompileForm(obj);                        
+                $('#form-status').text(' ' + voiceInput);
             }
         };
 
@@ -76,14 +76,15 @@ function appInit() {
 
 
     // events for the home buttons
-    $('#speak-green').on('click', function(){
-        initForm(1);
+    $('#speak-green, #speak-red').on('click', function(e){
+        if( $(e.target).attr('id') == 'speak-green' ) {
+            initForm(1);
+        } else {
+            initForm(-1);
+        }
+        
         $.mobile.navigate('#form');
-        recognition.start();                            
-    });
-    $('#speak-red').on('click', function(){
-        initForm(-1);
-        $.mobile.navigate('#form');
+        $('#form-status').text(' recording ...');
         recognition.start();                            
     });
 }
